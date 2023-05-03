@@ -1,6 +1,4 @@
-﻿using Teams.Infrastructure.Entities;
-
-namespace Teams.Infrastructure.Entities;
+﻿namespace Teams.Infrastructure.Entities;
 
 public class Team
 {
