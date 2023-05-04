@@ -1,25 +1,28 @@
-﻿using Matches.API.Entities;
-using Microsoft.AspNetCore.Http;
+﻿using Matches.Application.Matches.Commands.CreateMatch;
+using Matches.Application.Matches.Commands.DeleteMatch;
+using Matches.Application.Matches.Queries.GetMatchById;
+using Matches.Application.Matches.Queries.GetMatches;
+using Matches.Application.Matches.Queries.GetMatchesByLeagueId;
+using Matches.Application.Matches.Queries.GetStandingsByLeagueAndSeason;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Numerics;
 
 namespace Matches.API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 public class MatchesController : ControllerBase
 {
-    private readonly MatchesDbContext _context;
+    private readonly IMediator _mediator;
 
-    public MatchesController(MatchesDbContext context)
+    public MatchesController(IMediator context)
     {
-        _context = context;
+        _mediator = context;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAllMatches()
     {
-        var matches = await _context.Matches.ToListAsync();
+        var matches = await _mediator.Send(new GetMatchesQuery());
 
         return Ok(matches);
     }
@@ -27,7 +30,7 @@ public class MatchesController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetMatchById(Guid id)
     {
-        var match = await _context.Matches.FirstOrDefaultAsync(x => x.Id == id);
+        var match = await _mediator.Send(new GetMatchByIdQuery(id));
 
         return Ok(match);
     }
@@ -35,65 +38,32 @@ public class MatchesController : ControllerBase
     [HttpGet("leagues/{leagueId:guid}")]
     public async Task<IActionResult> GetMatchesByLeagueId(Guid leagueId)
     {
-        var matches = await _context.Matches
-            .Include(x => x.League)
-            .Include(x => x.HomeTeam)
-            .Include(x => x.AwayTeam)
-            .Where(x => x.LeagueId == leagueId)
-            .Select(x => new { x.Id, x.MatchDate, League = x.League.Name, x.Status, HomeTeam = x.HomeTeam.Name, x.HomeGoals, x.AwayGoals, AwayTeam = x.AwayTeam.Name })
-            .ToListAsync();
+        var matches = await _mediator.Send(new GetMatchesByLeagueIdQuery(leagueId));
 
         return Ok(matches);
     }
 
-    [HttpGet("leagues/{leagueId:guid}/standings")]
-    public async Task<IActionResult> GetStandingsByLeagueId(Guid leagueId)
+    [HttpPost]
+    public async Task<IActionResult> AddMatch(CreateMatchCommand command)
     {
-        var team = await
-                        _context.Matches.Include(x => x.League).Where(x => x.LeagueId == leagueId).Where(x => x.Status == Status.Finished)
-                        .Include(x => x.HomeTeam)
-                        .Select(x => new { x.HomeTeam.Name, x.HomeGoals, x.AwayGoals })
-                    .Concat(
-                        _context.Matches
-                        .Include(x => x.AwayTeam).Where(x => x.LeagueId == leagueId)
-                        .Select(x => new { x.AwayTeam.Name, HomeGoals = x.AwayGoals, AwayGoals = x.HomeGoals })
-                    ).ToListAsync();
+        var match = await _mediator.Send(command);
 
-        List<Ranking> standings = (from t in team
-                                   group t by t.Name into teams
-                                   select new Ranking
-                                   {
-                                       TeamName = teams.Key,
-                                       Played = teams.Count(),
-                                       Wins = teams.Count(x => x.HomeGoals > x.AwayGoals),
-                                       Loses = teams.Count(x => x.HomeGoals < x.AwayGoals),
-                                       Draws = teams.Count(x => x.HomeGoals == x.AwayGoals),
-                                       GoalsScored = (int)teams.Sum(x => x.HomeGoals),
-                                       GoalsConceded = (int)teams.Sum(x => x.AwayGoals),
-                                   }).OrderByDescending(x => x.Points)
-                                   .ThenByDescending(x => x.GoalsDiff)
-                                   .ToList();
+        return CreatedAtAction(nameof(GetMatchById), new { match.Id }, command);
+    }
 
-        for (int i = 0; i < standings.Count; i++)
-        {
-            standings[i].Position = i + 1;
-        }
+    [HttpGet("leagues/{leagueId:guid}/standings")]
+    public async Task<IActionResult> GetStandingsByLeagueId(Guid leagueId, [FromQuery] Guid seasonId)
+    {
+        var standings = await _mediator.Send(new GetStandingsByLeagueAndSeasonQuery(leagueId, seasonId));
 
         return Ok(standings);
     }
 
-    [HttpPost]
-    public async Task<IActionResult> AddMatch(Match matchRequest)
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteMatch(Guid id)
     {
-        //_context.Matches.Attach(matchRequest);
+        await _mediator.Send(new DeleteMatchCommand(id));
 
-        await _context.Matches.AddAsync(matchRequest);
-
-        //homeTeam.HomeMatches.Add(match);
-        //awayTeam.AwayMatches.Add(match);
-
-        await _context.SaveChangesAsync();
-
-        return Ok(matchRequest);
+        return NoContent();
     }
 }
