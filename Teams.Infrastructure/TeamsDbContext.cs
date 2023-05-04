@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Teams.Infrastructure.Configurations;
 using Teams.Infrastructure.Entities;
 
 namespace Teams.Infrastructure;
@@ -8,18 +9,15 @@ public class TeamsDbContext : DbContext
     public DbSet<Team> Teams => Set<Team>();
     public DbSet<League> Leagues => Set<League>();
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=teamsdb;Username=postgres;Password=root");
+    public TeamsDbContext(DbContextOptions<TeamsDbContext> options)
+        : base(options)
+    { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<Team>(t =>
-        {
-            t.HasOne(t => t.League)
-            .WithMany(l => l.Teams)
-            .HasForeignKey(t => t.LeagueId);
-        });
+        modelBuilder.ApplyConfiguration(new TeamConfiguration());
+        modelBuilder.ApplyConfiguration(new LeagueConfiguration());
     }
 }
