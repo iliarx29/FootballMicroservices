@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Teams.API", "Services\Teams
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Matches.API", "Services\Matches\Matches.API\Matches.API.csproj", "{AE619250-A144-40A0-B55B-20F5AB734635}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gateway.API", "ApiGAteways\Gateway.API\Gateway.API.csproj", "{1AC0DCD1-3C72-4473-A076-2D9F9C4FBD7D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gateway.API", "ApiGateways\Gateway.API\Gateway.API.csproj", "{1AC0DCD1-3C72-4473-A076-2D9F9C4FBD7D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{B7690615-2C6A-4223-9285-28A61031AAD6}"
 EndProject
