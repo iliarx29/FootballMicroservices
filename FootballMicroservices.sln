@@ -3,27 +3,29 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33516.290
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Teams.API", "Teams.API\Teams.API.csproj", "{DF6BDFF4-E4BA-44CE-BD1C-ED1100EAE549}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Teams.API", "Services\Teams\Teams.API\Teams.API.csproj", "{DF6BDFF4-E4BA-44CE-BD1C-ED1100EAE549}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Matches.API", "Matches.API\Matches.API.csproj", "{AE619250-A144-40A0-B55B-20F5AB734635}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Matches.API", "Services\Matches\Matches.API\Matches.API.csproj", "{AE619250-A144-40A0-B55B-20F5AB734635}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gateway.API", "Gateway.API\Gateway.API.csproj", "{1AC0DCD1-3C72-4473-A076-2D9F9C4FBD7D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gateway.API", "ApiGateways\Gateway.API\Gateway.API.csproj", "{1AC0DCD1-3C72-4473-A076-2D9F9C4FBD7D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Microservices", "Microservices", "{B7690615-2C6A-4223-9285-28A61031AAD6}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{B7690615-2C6A-4223-9285-28A61031AAD6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Teams", "Teams", "{58BF22D1-D8C6-4CCB-8B8C-BF33BC0DAD52}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Matches", "Matches", "{956488D8-EE02-4697-A925-82A9F82849BC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Teams.Domain", "Teams.Domain\Teams.Domain.csproj", "{AEA200DF-C160-4DA8-A470-F7E40B6A37FF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Teams.Domain", "Services\Teams\Teams.Domain\Teams.Domain.csproj", "{AEA200DF-C160-4DA8-A470-F7E40B6A37FF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Teams.Infrastructure", "Teams.Infrastructure\Teams.Infrastructure.csproj", "{08F0EC37-EF9F-4A60-8725-87DE1E5B8ACC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Teams.Infrastructure", "Services\Teams\Teams.Infrastructure\Teams.Infrastructure.csproj", "{08F0EC37-EF9F-4A60-8725-87DE1E5B8ACC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Matches.Domain", "Matches.Domain\Matches.Domain.csproj", "{81D03D06-633D-4D17-9E4D-80DC4D566D5F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Matches.Domain", "Services\Matches\Matches.Domain\Matches.Domain.csproj", "{81D03D06-633D-4D17-9E4D-80DC4D566D5F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Matches.Application", "Matches.Application\Matches.Application.csproj", "{733B9FE9-61B3-4F33-B20C-122965944152}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Matches.Application", "Services\Matches\Matches.Application\Matches.Application.csproj", "{733B9FE9-61B3-4F33-B20C-122965944152}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Matches.Infrastructure", "Matches.Infrastructure\Matches.Infrastructure.csproj", "{AC748CA0-DBD7-4A91-93FB-8E5720C4172E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Matches.Infrastructure", "Services\Matches\Matches.Infrastructure\Matches.Infrastructure.csproj", "{AC748CA0-DBD7-4A91-93FB-8E5720C4172E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ApiGateways", "ApiGateways", "{824811C8-999E-48FF-ADE8-2BEAEFDFD5AE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -70,6 +72,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{DF6BDFF4-E4BA-44CE-BD1C-ED1100EAE549} = {58BF22D1-D8C6-4CCB-8B8C-BF33BC0DAD52}
 		{AE619250-A144-40A0-B55B-20F5AB734635} = {956488D8-EE02-4697-A925-82A9F82849BC}
+		{1AC0DCD1-3C72-4473-A076-2D9F9C4FBD7D} = {824811C8-999E-48FF-ADE8-2BEAEFDFD5AE}
 		{58BF22D1-D8C6-4CCB-8B8C-BF33BC0DAD52} = {B7690615-2C6A-4223-9285-28A61031AAD6}
 		{956488D8-EE02-4697-A925-82A9F82849BC} = {B7690615-2C6A-4223-9285-28A61031AAD6}
 		{AEA200DF-C160-4DA8-A470-F7E40B6A37FF} = {58BF22D1-D8C6-4CCB-8B8C-BF33BC0DAD52}
