@@ -16,6 +16,7 @@ public class GetMatchesQueryHandler : IRequestHandler<GetMatchesQuery, IEnumerab
     public async Task<IEnumerable<Match>> Handle(GetMatchesQuery query, CancellationToken cancellationToken)
     {
         var matches = await _context.Matches.AsNoTracking().ToListAsync(cancellationToken);
+
         if (matches is null)
             throw new ArgumentNullException(nameof(matches), "Matches is null");
 

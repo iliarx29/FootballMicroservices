@@ -21,4 +21,6 @@ public class Match
     public Season Season { get; set; }
     public Status Status { get; set; }
     public int Round { get; set; }
+    public List<Player> HomePlayers { get; set; } = new();
+    public List<Player> AwayPlayers { get; set; } = new();
 }

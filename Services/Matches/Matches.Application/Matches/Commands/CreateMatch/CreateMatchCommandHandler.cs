@@ -24,13 +24,14 @@ public class CreateMatchCommandHandler : IRequestHandler<CreateMatchCommand, Mat
             LeagueId = command.LeagueId,
             SeasonId = command.SeasonId,
             Round = command.Round,
-            Status = Enum.Parse<Status>(command.Status)
+            Status = Enum.Parse<Status>(command.Status),
+            HomePlayers = command.HomePlayers.Select(x => new Player { Id = x }).ToList(),
+            AwayPlayers = command.AwayPlayers.Select(x => new Player { Id = x }).ToList()
         };
 
-        await _context.Matches.AddAsync(match, cancellationToken);
+        _context.Matches.Attach(match);
         await _context.SaveChangesAsync(cancellationToken);
 
         return match;
-
     }
 }

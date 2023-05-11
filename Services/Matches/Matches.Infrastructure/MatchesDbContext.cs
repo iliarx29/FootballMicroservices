@@ -13,12 +13,14 @@ public class MatchesDbContext : DbContext, IMatchesDbContext
 
     public DbSet<Match> Matches { get; set; }
     public DbSet<Season> Seasons { get; set; }
+    public DbSet<Player> Players { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfiguration(new MatchConfiguration());
+        modelBuilder.ApplyConfiguration(new PlayerConfiguration());
 
         modelBuilder.Entity<Season>(s =>
         {

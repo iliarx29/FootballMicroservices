@@ -16,4 +16,6 @@ public record CreateMatchCommand(
     Guid LeagueId,
     Guid SeasonId,
     string Status,
-    int Round) : IRequest<Match>;
+    int Round,
+    List<Guid>? HomePlayers,
+    List<Guid>? AwayPlayers) : IRequest<Match>;
