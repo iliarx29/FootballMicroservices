@@ -1,5 +1,6 @@
 ﻿using Matches.Application.Abstractions;
 using Matches.Domain.Entities;
+using Matches.Domain.Exceptions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,7 +19,7 @@ public class GetMatchesLeagueIdQueryHandler : IRequestHandler<GetMatchesByLeague
         var matches = await _context.Matches.AsNoTracking().Where(x => x.LeagueId == query.LeagueId).ToListAsync(cancellationToken);
 
         if (matches is null)
-            throw new ArgumentNullException(nameof(matches), "Matches is null");
+            throw new NotFoundException("Matches don't exists.");
 
         return matches;
     }

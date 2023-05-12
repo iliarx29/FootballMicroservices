@@ -1,5 +1,6 @@
 ﻿using Matches.Application.Abstractions;
 using Matches.Domain.Entities;
+using Matches.Domain.Exceptions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,8 +18,8 @@ public class GetMatchesQueryHandler : IRequestHandler<GetMatchesQuery, IEnumerab
     {
         var matches = await _context.Matches.AsNoTracking().ToListAsync(cancellationToken);
 
-        if (matches is null)
-            throw new ArgumentNullException(nameof(matches), "Matches is null");
+        if(matches is null)
+            throw new NotFoundException("Matches don't exists.");
 
         return matches;
     }

@@ -1,4 +1,5 @@
-﻿using Matches.Application.Abstractions;
+﻿using FluentValidation;
+using Matches.Application.Abstractions;
 using Matches.Domain.Entities;
 using MediatR;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
@@ -37,6 +38,17 @@ public class CreatePlayerCommandHandler : IRequestHandler<CreatePlayerCommand, P
         await _context.SaveChangesAsync(cancellationToken);
 
         return player;
+    }
+}
+
+public class CreatePlayerCommandValidator : AbstractValidator<CreatePlayerCommand>
+{
+    public CreatePlayerCommandValidator()
+    {
+        RuleFor(x => x.Name).NotNull().NotEmpty();
+        RuleFor(x => x.CountryName).NotNull().NotEmpty();
+        RuleFor(x => x.DateOfBirth).NotNull().NotEmpty();
+        RuleFor(x => x.Position).IsEnumName(typeof(Position));
     }
 }
 

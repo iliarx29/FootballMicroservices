@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Teams.API.Middlewares;
 using Teams.Domain;
 using Teams.Infrastructure;
 
@@ -24,6 +25,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseAuthorization();
 

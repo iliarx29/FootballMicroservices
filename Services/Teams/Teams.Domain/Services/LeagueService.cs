@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Teams.Domain.Exceptions;
 using Teams.Domain.Interfaces;
 using Teams.Domain.Models;
 using Teams.Infrastructure;
@@ -10,12 +12,15 @@ public class LeagueService : ILeagueService
 {
     private readonly TeamsDbContext _context;
     private readonly IMapper _mapper;
+    private readonly IValidator<LeagueRequest> _validator;
 
-    public LeagueService(TeamsDbContext context, IMapper mapper)
+    public LeagueService(TeamsDbContext context, IMapper mapper, IValidator<LeagueRequest> validator)
     {
         _context = context;
         _mapper = mapper;
+        _validator = validator;
     }
+
     public async Task<IEnumerable<LeagueResponse>> GetAllLeaguesAsync()
     {
         var leagues = await _context.Leagues.AsNoTracking().ToListAsync();
@@ -30,7 +35,7 @@ public class LeagueService : ILeagueService
         var league = await _context.Leagues.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
 
         if (league is null)
-            throw new ArgumentNullException($"League with id: '{id}' doesn't exists.");
+            throw new NotFoundException($"League with id: '{id}' doesn't exists.");
 
         var leagueResponse = _mapper.Map<LeagueResponse>(league);
 
@@ -39,6 +44,8 @@ public class LeagueService : ILeagueService
 
     public async Task<LeagueResponse> AddLeagueAsync(LeagueRequest leagueRequest)
     {
+        _validator.ValidateAndThrow(leagueRequest);
+
         var league = _mapper.Map<League>(leagueRequest);
 
         await _context.Leagues.AddAsync(league);
@@ -51,10 +58,12 @@ public class LeagueService : ILeagueService
 
     public async Task UpdateLeagueAsync(Guid id, LeagueRequest leagueRequest)
     {
+        _validator.ValidateAndThrow(leagueRequest);
+
         var league = await _context.Leagues.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         if (league is null)
         {
-            throw new ArgumentNullException($"League with given id:'{id}' doesn't exist.");
+            throw new NotFoundException($"League with given id:'{id}' doesn't exist.");
         }
 
         league = _mapper.Map<League>(leagueRequest);
@@ -69,7 +78,7 @@ public class LeagueService : ILeagueService
         var league = await _context.Leagues.FirstOrDefaultAsync(x => x.Id == id);
         if (league is null)
         {
-            throw new ArgumentNullException($"League with given id:'{id}' doesn't exist.");
+            throw new NotFoundException($"League with given id:'{id}' doesn't exist.");
         }
 
         _context.Leagues.Remove(league);
@@ -82,7 +91,7 @@ public class LeagueService : ILeagueService
 
         if(league is null)
         {
-            throw new ArgumentNullException($"League with given id:'{id}' doesn't exist.");
+            throw new NotFoundException($"League with given id:'{id}' doesn't exist.");
         }
 
         var leagueResponse = _mapper.Map<LeagueResponse>(league);

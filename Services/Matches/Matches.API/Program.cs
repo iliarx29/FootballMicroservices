@@ -1,3 +1,4 @@
+using Matches.API.Middlewares;
 using Matches.Application;
 using Matches.Infrastructure;
 
@@ -25,6 +26,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseAuthorization();
 
