@@ -7,6 +7,8 @@ public static class DependencyInjection
     {
         services.AddMediatR(configuration =>
             configuration.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
+
+        services.AddHttpClient();
         return services;
     }
 }

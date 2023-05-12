@@ -15,7 +15,23 @@ public class GetMatchByIdQueryHandler : IRequestHandler<GetMatchByIdQuery, Match
 
     public async Task<Match> Handle(GetMatchByIdQuery query, CancellationToken cancellationToken)
     {
-        var match = await _context.Matches.AsNoTracking().FirstOrDefaultAsync(x => x.Id == query.Id, cancellationToken);
+        var match = await _context.Matches
+            .Select(x => new Match
+            {
+                Id = x.Id, 
+                HomeTeamId = x.HomeTeamId, 
+                HomeGoals = x.HomeGoals, 
+                AwayGoals = x.AwayGoals, 
+                AwayTeamId = x.AwayTeamId, 
+                MatchDate = x.MatchDate,
+                Status = x.Status, 
+                Round = x.Round,
+                LeagueId = x.LeagueId, 
+                SeasonId = x.SeasonId,
+                HomePlayers = x.HomePlayers.Select(x => new Player { Id = x.Id, Name = x.Name }).ToList(),
+                AwayPlayers = x.AwayPlayers.Select(x => new Player { Id = x.Id, Name = x.Name }).ToList()
+            })
+            .FirstOrDefaultAsync(x => x.Id == query.Id, cancellationToken);
 
         if (match is null)
             throw new ArgumentNullException(nameof(match), $"Match with given id: '{query.Id}' is null");

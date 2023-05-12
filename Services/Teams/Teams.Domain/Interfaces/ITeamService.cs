@@ -8,4 +8,5 @@ public interface ITeamService
     Task<TeamResponse> AddTeamAsync(TeamRequest teamRequest);
     Task UpdateTeamAsync(Guid id, TeamRequest teamRequest);
     Task DeleteTeamAsync(Guid id);
+    Task<int> ImportTeams();
 }

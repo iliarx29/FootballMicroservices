@@ -53,4 +53,13 @@ public class TeamsController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpPost("import")]
+    public async Task<IActionResult> ImportTeams()
+    {
+        var result = await _teamService.ImportTeams();
+
+        return Ok(result);
+
+    }
 }
