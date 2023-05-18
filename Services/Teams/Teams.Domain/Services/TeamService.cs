@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
+using Teams.Domain.Exceptions;
 using Teams.Domain.Interfaces;
 using Teams.Domain.Models;
+using Teams.Domain.Validation;
 using Teams.Infrastructure;
 using Teams.Infrastructure.Entities;
 
@@ -11,12 +14,15 @@ public class TeamService : ITeamService
 {
     private readonly TeamsDbContext _context;
     private readonly IMapper _mapper;
+    private readonly IValidator<TeamRequest> _validator;
 
-    public TeamService(TeamsDbContext context, IMapper mapper)
+    public TeamService(TeamsDbContext context, IMapper mapper, IValidator<TeamRequest> validator)
     {
         _context = context;
         _mapper = mapper;
+        _validator = validator;
     }
+
     public async Task<IEnumerable<TeamResponse>> GetAllTeamsAsync()
     {
         var teams = await _context.Teams.AsNoTracking().ToListAsync();
@@ -31,7 +37,7 @@ public class TeamService : ITeamService
         var team = await _context.Teams.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
 
         if (team is null)
-            throw new ArgumentNullException($"Team with id: '{id}' doesn't exists.");
+            throw new NotFoundException($"Team with id: '{id}' doesn't exists.");
 
         var teamResponse = _mapper.Map<TeamResponse>(team);
 
@@ -40,6 +46,8 @@ public class TeamService : ITeamService
 
     public async Task<TeamResponse> AddTeamAsync(TeamRequest teamRequest)
     {
+        _validator.ValidateAndThrow(teamRequest);
+
         var team = _mapper.Map<Team>(teamRequest);
 
         await _context.Teams.AddAsync(team);
@@ -52,10 +60,12 @@ public class TeamService : ITeamService
 
     public async Task UpdateTeamAsync(Guid id, TeamRequest teamRequest)
     {
+        _validator.ValidateAndThrow(teamRequest);
+
         var team = await _context.Teams.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         if (team is null)
         {
-            throw new ArgumentNullException($"Team with given id:'{id}' doesn't exist.");
+            throw new NotFoundException($"Team with given id:'{id}' doesn't exist.");
         }
 
         team = _mapper.Map<Team>(teamRequest);
@@ -70,7 +80,7 @@ public class TeamService : ITeamService
         var team = await _context.Teams.FirstOrDefaultAsync(x => x.Id == id);
         if (team is null)
         {
-            throw new ArgumentNullException($"Team with given id:'{id}' doesn't exist.");
+            throw new NotFoundException($"Team with given id:'{id}' doesn't exist.");
         }
 
         _context.Teams.Remove(team);

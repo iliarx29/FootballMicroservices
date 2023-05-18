@@ -1,5 +1,6 @@
 ﻿using Matches.Application.Abstractions;
 using Matches.Domain.Entities;
+using Matches.Domain.Exceptions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,7 +21,7 @@ public class GetPlayerByIdQueryHandler : IRequestHandler<GetPlayerByIdQuery, Pla
         var player = await _context.Players.AsNoTracking().FirstOrDefaultAsync(x => x.Id == query.Id, cancellationToken);
 
         if(player is null)
-            throw new ArgumentNullException();
+            throw new NotFoundException($"Player '{query.Id}' doesn't exist.");
 
         return player;
     }

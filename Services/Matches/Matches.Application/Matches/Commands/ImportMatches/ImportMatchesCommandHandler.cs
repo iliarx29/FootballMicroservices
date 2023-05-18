@@ -39,7 +39,7 @@ public class ImportMatchesCommandHandler : IRequestHandler<ImportMatchesCommand,
 
     private async Task<int> ImportMatches(Dictionary<string, Guid> teamsDict, Guid leagueId, Guid seasonId)
     {
-        var path = @"C:\Users\Ilya\Desktop\Книга1.xlsx";
+        var path = @"C:\Users\Ilya\Downloads\England(22-23(10.05.2023)).xlsx";
 
         using var stream = System.IO.File.OpenRead(path);
         using var excelPackage = new ExcelPackage(stream);

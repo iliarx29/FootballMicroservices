@@ -4,6 +4,7 @@ using MediatR;
 using System.Linq.Dynamic.Core;
 using Microsoft.EntityFrameworkCore;
 using Matches.Application.Matches.Queries.GetStandingsByLeagueAndSeason;
+using System.Linq;
 
 namespace Matches.Application.Matches.Queries.GetStandingsByLeagueId;
 public class GetStandingsByLeagueAndSeasonQueryHandler : IRequestHandler<GetStandingsByLeagueAndSeasonQuery, List<Ranking>>
@@ -17,33 +18,34 @@ public class GetStandingsByLeagueAndSeasonQueryHandler : IRequestHandler<GetStan
 
     public async Task<List<Ranking>> Handle(GetStandingsByLeagueAndSeasonQuery query, CancellationToken cancellationToken)
     {
-        var team = await _context.Matches.AsNoTracking()
-                        .Where(x => x.LeagueId == query.LeagueId && x.SeasonId == query.SeasonId && x.Status == Status.Finished)
-                        .Select(x => new { x.HomeTeamId, x.HomeGoals, x.AwayGoals })
+        var standings = _context.Matches
+                        .Where(x => x.LeagueId == query.LeagueId)
+                        .Where(x => x.SeasonId == query.SeasonId)
+                        .Where(x => x.Status == Status.Finished)
+                        .Select(x => new { TeamId = x.HomeTeamId, GoalScored = x.HomeGoals, GoalConceded = x.AwayGoals })
                 .Concat(
-                        _context.Matches.AsNoTracking()
-                        .Where(x => x.LeagueId == query.LeagueId && x.SeasonId == query.SeasonId && x.Status == Status.Finished)
-                        .Select(x => new { HomeTeamId = x.AwayTeamId, HomeGoals = x.AwayGoals, AwayGoals = x.HomeGoals })
-                        )
-                .ToListAsync(cancellationToken);
+                         _context.Matches
+                        .Where(x => x.LeagueId == query.LeagueId)
+                        .Where(x => x.SeasonId == query.SeasonId)
+                        .Where(x => x.Status == Status.Finished)
+                        .Select(x => new { TeamId = x.AwayTeamId, GoalScored = x.AwayGoals, GoalConceded = x.HomeGoals }))
+                .AsEnumerable()
+                .GroupBy(x => x.TeamId)
+                .Select(teams => new Ranking
+                {
+                    TeamId = teams.Key,
+                    Played = teams.Count(),
+                    Wins = teams.Count(x => x.GoalScored > x.GoalConceded),
+                    Loses = teams.Count(x => x.GoalScored < x.GoalConceded),
+                    Draws = teams.Count(x => x.GoalScored == x.GoalConceded),
+                    GoalsScored = (int)teams.Sum(x => x.GoalScored),
+                    GoalsConceded = (int)teams.Sum(x => x.GoalConceded)
+                })
+                .OrderByDescending(x => x.Points)
+                    .ThenByDescending(x => x.GoalsDiff)
+                .ToList();
 
-        List<Ranking> standings = (from t in team
-                                   group t by t.HomeTeamId into teams
-                                   select new Ranking
-                                   {
-                                       TeamId = teams.Key,
-                                       Played = teams.Count(),
-                                       Wins = teams.Count(x => x.HomeGoals > x.AwayGoals),
-                                       Loses = teams.Count(x => x.HomeGoals < x.AwayGoals),
-                                       Draws = teams.Count(x => x.HomeGoals == x.AwayGoals),
-                                       GoalsScored = (int)teams.Sum(x => x.HomeGoals),
-                                       GoalsConceded = (int)teams.Sum(x => x.AwayGoals),
-                                   })
-                                   .OrderByDescending(x => x.Points)
-                                   .ThenByDescending(x => x.GoalsDiff)
-                                   .ToList();
-
-        for (int i = 0; i < standings.Count; i++)
+        for(int i = 0; i < standings.Count; i++)
         {
             standings[i].Position = i + 1;
         }

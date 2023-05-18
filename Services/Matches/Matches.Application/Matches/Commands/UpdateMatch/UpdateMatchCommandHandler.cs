@@ -1,5 +1,6 @@
 ﻿using Matches.Application.Abstractions;
 using Matches.Domain.Entities;
+using Matches.Domain.Exceptions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,7 +19,7 @@ public class UpdateMatchCommandHandler : IRequestHandler<UpdateMatchCommand>
         var match = await _context.Matches.FirstOrDefaultAsync(x => x.Id == command.Id);
 
         if (match is null)
-            throw new ArgumentNullException();
+            throw new NotFoundException($"Match with id: '{command.Id}' doesn't exist.");
 
         match.HomeTeamId = command.HomeTeamId;
         match.AwayTeamId = command.AwayTeamId;

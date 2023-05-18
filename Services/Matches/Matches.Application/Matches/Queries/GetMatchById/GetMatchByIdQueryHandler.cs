@@ -1,5 +1,6 @@
 ﻿using Matches.Application.Abstractions;
 using Matches.Domain.Entities;
+using Matches.Domain.Exceptions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,7 +35,7 @@ public class GetMatchByIdQueryHandler : IRequestHandler<GetMatchByIdQuery, Match
             .FirstOrDefaultAsync(x => x.Id == query.Id, cancellationToken);
 
         if (match is null)
-            throw new ArgumentNullException(nameof(match), $"Match with given id: '{query.Id}' is null");
+            throw new NotFoundException($"Match with id: '{query.Id}' doesn't exist.");
 
         return match;
     }
