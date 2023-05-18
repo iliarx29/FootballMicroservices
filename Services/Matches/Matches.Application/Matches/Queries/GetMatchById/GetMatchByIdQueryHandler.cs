@@ -1,11 +1,12 @@
 ﻿using Matches.Application.Abstractions;
+using Matches.Application.Results;
 using Matches.Domain.Entities;
 using Matches.Domain.Exceptions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Matches.Application.Matches.Queries.GetMatchById;
-public class GetMatchByIdQueryHandler : IRequestHandler<GetMatchByIdQuery, Match>
+public class GetMatchByIdQueryHandler : IRequestHandler<GetMatchByIdQuery, Result<Match>>
 {
     private readonly IMatchesDbContext _context;
 
@@ -14,7 +15,7 @@ public class GetMatchByIdQueryHandler : IRequestHandler<GetMatchByIdQuery, Match
         _context = context;
     }
 
-    public async Task<Match> Handle(GetMatchByIdQuery query, CancellationToken cancellationToken)
+    public async Task<Result<Match>> Handle(GetMatchByIdQuery query, CancellationToken cancellationToken)
     {
         var match = await _context.Matches
             .Select(x => new Match
@@ -35,8 +36,8 @@ public class GetMatchByIdQueryHandler : IRequestHandler<GetMatchByIdQuery, Match
             .FirstOrDefaultAsync(x => x.Id == query.Id, cancellationToken);
 
         if (match is null)
-            throw new NotFoundException($"Match with id: '{query.Id}' doesn't exist.");
+            return Result<Match>.Error(ErrorCode.NotFound, $"Match with id: '{query.Id}' not found");
 
-        return match;
+        return Result<Match>.Success(match);
     }
 }

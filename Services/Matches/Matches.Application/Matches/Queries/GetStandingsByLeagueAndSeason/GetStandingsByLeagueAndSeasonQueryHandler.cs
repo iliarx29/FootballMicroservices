@@ -5,9 +5,10 @@ using System.Linq.Dynamic.Core;
 using Microsoft.EntityFrameworkCore;
 using Matches.Application.Matches.Queries.GetStandingsByLeagueAndSeason;
 using System.Linq;
+using Matches.Application.Results;
 
 namespace Matches.Application.Matches.Queries.GetStandingsByLeagueId;
-public class GetStandingsByLeagueAndSeasonQueryHandler : IRequestHandler<GetStandingsByLeagueAndSeasonQuery, List<Ranking>>
+public class GetStandingsByLeagueAndSeasonQueryHandler : IRequestHandler<GetStandingsByLeagueAndSeasonQuery, Result<List<Ranking>>>
 {
     private readonly IMatchesDbContext _context;
 
@@ -16,7 +17,7 @@ public class GetStandingsByLeagueAndSeasonQueryHandler : IRequestHandler<GetStan
         _context = context;
     }
 
-    public async Task<List<Ranking>> Handle(GetStandingsByLeagueAndSeasonQuery query, CancellationToken cancellationToken)
+    public async Task<Result<List<Ranking>>> Handle(GetStandingsByLeagueAndSeasonQuery query, CancellationToken cancellationToken)
     {
         var standings = _context.Matches
                         .Where(x => x.LeagueId == query.LeagueId)
@@ -50,6 +51,6 @@ public class GetStandingsByLeagueAndSeasonQueryHandler : IRequestHandler<GetStan
             standings[i].Position = i + 1;
         }
 
-        return standings;
+        return Result<List<Ranking>>.Success(standings);
     }
 }

@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Matches.API.Common;
 using Matches.Domain.Exceptions;
 using System.Net;
 using System.Text.Json;
@@ -36,9 +35,7 @@ public class ExceptionHandlingMiddleware
             _ => HttpStatusCode.InternalServerError,
         };
 
-        var errors = new List<string> { ex.Message };
-
-        var result = JsonSerializer.Serialize(ApiResult<string>.Failure((int)code, errors));
+        var result = JsonSerializer.Serialize(new { error = ex.Message });
 
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)code;
