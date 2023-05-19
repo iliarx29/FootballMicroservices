@@ -10,11 +10,11 @@ public class MatchesActionResult : IConvertToActionResult
     private readonly ActionResultBody _resultBody;
 
     internal HttpStatusCode HttpStatusCode { get; set; }
-    internal Enum Code { get; set; }
+    internal ErrorCode? Code { get; set; }
     internal string Description { get; set; }
     internal string? Message { get; set; }
 
-    public MatchesActionResult(HttpStatusCode httpStatusCode, Enum code = null, string? message = null)
+    public MatchesActionResult(HttpStatusCode httpStatusCode, ErrorCode? code = null, string? message = null)
     {
         Code = code;
         Description = code.GetDescription();
@@ -38,7 +38,7 @@ public class MatchesActionResult : IConvertToActionResult
         return new MatchesActionResult(HttpStatusCode.OK, ErrorCode.OK);
     }
 
-    public MatchesActionResult Fail(Enum code, string? message = null)
+    public MatchesActionResult Fail(ErrorCode? code, string? message = null)
     {
         if (code is ErrorCode.NotFound)
         {
@@ -53,9 +53,9 @@ public class MatchesActionResult<T> : MatchesActionResult, IConvertToActionResul
 {
     private readonly ActionResultBody<T> _resultBody;
 
-    public MatchesActionResult(HttpStatusCode httpStatusCode, Enum code = null, string? message = null, T value = default) : base(httpStatusCode, code)
+    public MatchesActionResult(HttpStatusCode httpStatusCode, ErrorCode? code = null, string? message = null, T value = default) : base(httpStatusCode, code)
     {
-        _resultBody = new ActionResultBody<T>(Code, Description, value, message);
+        _resultBody = new ActionResultBody<T>(code, Description, value, message);
     }
 
     public IActionResult Convert()
@@ -72,7 +72,7 @@ public class MatchesActionResult<T> : MatchesActionResult, IConvertToActionResul
         return new MatchesActionResult<T>(HttpStatusCode.OK, ErrorCode.OK, null, value);
     }
 
-    public MatchesActionResult<T> Fail<T>(Enum code, string? message = null)
+    public MatchesActionResult<T> Fail<T>(ErrorCode? code, string? message = null)
     {
         if (code is ErrorCode.NotFound)
         {

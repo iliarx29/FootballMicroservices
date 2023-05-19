@@ -44,7 +44,7 @@ public class MatchesController : ControllerBase
         var match = await _mediator.Send(new GetMatchByIdQuery(id));
 
         if (match.IsSuccess)
-            return new MatchesActionResult<Match>(HttpStatusCode.NotFound, ErrorCode.NotFound).Success<Match>(match.Value);
+            return new MatchesActionResult<Match>(HttpStatusCode.OK, ErrorCode.OK).Success<Match>(match.Value);
 
         return new MatchesActionResult<Match>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail<Match>(ErrorCode.NotFound, match.ErrorMessage);
     }
