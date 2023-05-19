@@ -15,41 +15,41 @@ public class CompetitionsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllLeagues()
+    public async Task<IActionResult> GetAllCompetitions()
     {
-        var leagues = await _competitionService.GetAllLeaguesAsync();
+        var competitions = await _competitionService.GetAllCompetitionsAsync();
 
-        return Ok(leagues);
+        return Ok(competitions);
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetLeagueById(Guid id)
+    public async Task<IActionResult> GetCompetitionById(Guid id)
     {
-        var league = await _competitionService.GetLeagueByIdAsync(id);
+        var competition = await _competitionService.GetCompetitionByIdAsync(id);
 
-        return Ok(league);
+        return Ok(competition);
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddLeague(CompetitionRequest competitionRequest)
+    public async Task<IActionResult> AddCompetition(CompetitionRequest competitionRequest)
     {
         var competitionResponse = await _competitionService.AddCompetitionAsync(competitionRequest);
 
-        return CreatedAtAction(nameof(GetLeagueById), new { competitionResponse.Id }, competitionResponse);
+        return CreatedAtAction(nameof(GetCompetitionById), new { competitionResponse.Id }, competitionResponse);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdateLeague(Guid id, CompetitionRequest leagueRequest)
+    public async Task<IActionResult> UpdateCompetition(Guid id, CompetitionRequest leagueRequest)
     {
-        await _competitionService.UpdateLeagueAsync(id, leagueRequest);
+        await _competitionService.UpdateCompetitionAsync(id, leagueRequest);
 
         return NoContent();
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteTeam(Guid id)
+    public async Task<IActionResult> DeleteCompetition(Guid id)
     {
-        await _competitionService.DeleteLeagueAsync(id);
+        await _competitionService.DeleteCompetitionAsync(id);
 
         return NoContent();
     }

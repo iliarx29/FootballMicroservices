@@ -17,25 +17,25 @@ public class CompetitionService : ICompetitionService
         _context = context;
         _mapper = mapper;
     }
-    public async Task<IEnumerable<CompetitionResponse>> GetAllLeaguesAsync()
+    public async Task<IEnumerable<CompetitionResponse>> GetAllCompetitionsAsync()
     {
-        var leagues = await _context.Competitions.AsNoTracking().ToListAsync();
+        var competitions = await _context.Competitions.AsNoTracking().ToListAsync();
 
-        var leaguesResponse = _mapper.Map<List<CompetitionResponse>>(leagues);
+        var competitionsResponse = _mapper.Map<List<CompetitionResponse>>(competitions);
 
-        return leaguesResponse;
+        return competitionsResponse;
     }
 
-    public async Task<CompetitionResponse> GetLeagueByIdAsync(Guid id)
+    public async Task<CompetitionResponse> GetCompetitionByIdAsync(Guid id)
     {
-        var league = await _context.Competitions.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+        var competition = await _context.Competitions.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
 
-        if (league is null)
-            throw new ArgumentNullException($"League with id: '{id}' doesn't exists.");
+        if (competition is null)
+            throw new ArgumentNullException($"Competition with id: '{id}' doesn't exists.");
 
-        var leagueResponse = _mapper.Map<CompetitionResponse>(league);
+        var competitionResponse = _mapper.Map<CompetitionResponse>(competition);
 
-        return leagueResponse;
+        return competitionResponse;
     }
 
     public async Task<CompetitionResponse> AddCompetitionAsync(CompetitionRequest competitionRequest)
@@ -50,30 +50,30 @@ public class CompetitionService : ICompetitionService
         return competitionResponse;
     }
 
-    public async Task UpdateLeagueAsync(Guid id, CompetitionRequest leagueRequest)
+    public async Task UpdateCompetitionAsync(Guid id, CompetitionRequest competitionRequest)
     {
-        var league = await _context.Competitions.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
-        if (league is null)
+        var competition = await _context.Competitions.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+        if (competition is null)
         {
             throw new ArgumentNullException($"League with given id:'{id}' doesn't exist.");
         }
 
-        league = _mapper.Map<Competition>(leagueRequest);
-        league.Id = id;
+        competition = _mapper.Map<Competition>(competitionRequest);
+        competition.Id = id;
 
-        _context.Competitions.Update(league);
+        _context.Competitions.Update(competition);
         await _context.SaveChangesAsync();
     }
 
-    public async Task DeleteLeagueAsync(Guid id)
+    public async Task DeleteCompetitionAsync(Guid id)
     {
-        var league = await _context.Competitions.FirstOrDefaultAsync(x => x.Id == id);
-        if (league is null)
+        var competition = await _context.Competitions.FirstOrDefaultAsync(x => x.Id == id);
+        if (competition is null)
         {
-            throw new ArgumentNullException($"League with given id:'{id}' doesn't exist.");
+            throw new ArgumentNullException($"Competition with given id:'{id}' doesn't exist.");
         }
 
-        _context.Competitions.Remove(league);
+        _context.Competitions.Remove(competition);
         await _context.SaveChangesAsync();
     }
 

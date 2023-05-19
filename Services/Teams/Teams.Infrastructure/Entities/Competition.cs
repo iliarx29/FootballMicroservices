@@ -7,5 +7,5 @@ public class Competition
     public string Area { get; set; } = string.Empty;
     public string Code { get; set; } = string.Empty;
     public CompetitionType Type { get; set; }
-    public List<Team>? Teams { get; set; }
+    public List<Team> Teams { get; set; } = new();
 }
