@@ -7,7 +7,7 @@ namespace Teams.Infrastructure;
 public class TeamsDbContext : DbContext
 {
     public DbSet<Team> Teams => Set<Team>();
-    public DbSet<League> Leagues => Set<League>();
+    public DbSet<Competition> Competitions => Set<Competition>();
 
     public TeamsDbContext(DbContextOptions<TeamsDbContext> options)
         : base(options)
@@ -18,6 +18,6 @@ public class TeamsDbContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfiguration(new TeamConfiguration());
-        modelBuilder.ApplyConfiguration(new LeagueConfiguration());
+        modelBuilder.ApplyConfiguration(new CompetitionConfiguration());
     }
 }
