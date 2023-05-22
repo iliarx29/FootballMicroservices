@@ -4,6 +4,7 @@ using MediatR;
 using System.Linq.Dynamic.Core;
 using Microsoft.EntityFrameworkCore;
 using Matches.Application.Matches.Queries.GetStandingsByLeagueAndSeason;
+using Matches.Domain.Entities.Enums;
 
 namespace Matches.Application.Matches.Queries.GetStandingsByLeagueId;
 public class GetStandingsByLeagueAndSeasonQueryHandler : IRequestHandler<GetStandingsByLeagueAndSeasonQuery, List<Ranking>>
@@ -18,11 +19,11 @@ public class GetStandingsByLeagueAndSeasonQueryHandler : IRequestHandler<GetStan
     public async Task<List<Ranking>> Handle(GetStandingsByLeagueAndSeasonQuery query, CancellationToken cancellationToken)
     {
         var team = await _context.Matches.AsNoTracking()
-                        .Where(x => x.LeagueId == query.LeagueId && x.SeasonId == query.SeasonId && x.Status == Status.Finished)
+                        .Where(x => x.CompetitionId == query.LeagueId && x.Season == query.Season && x.Status == Status.Finished)
                         .Select(x => new { x.HomeTeamId, x.HomeGoals, x.AwayGoals })
                 .Concat(
                         _context.Matches.AsNoTracking()
-                        .Where(x => x.LeagueId == query.LeagueId && x.SeasonId == query.SeasonId && x.Status == Status.Finished)
+                        .Where(x => x.CompetitionId == query.LeagueId && x.Season == query.Season && x.Status == Status.Finished)
                         .Select(x => new { HomeTeamId = x.AwayTeamId, HomeGoals = x.AwayGoals, AwayGoals = x.HomeGoals })
                         )
                 .ToListAsync(cancellationToken);

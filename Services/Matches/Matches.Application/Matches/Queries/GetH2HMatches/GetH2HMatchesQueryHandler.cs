@@ -1,5 +1,6 @@
 ﻿using Matches.Application.Abstractions;
 using Matches.Domain.Entities;
+using Matches.Domain.Entities.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,8 +23,9 @@ public class GetH2HMatchesQueryHandler : IRequestHandler<GetH2HMatchesQuery, IEn
 
         var h2hMatches = await _context.Matches
             .AsNoTracking()
-            .Where(x => x.Status == Status.Finished && (x.HomeTeamId == currentMatch.HomeTeamId && x.AwayTeamId == currentMatch.AwayTeamId
-            || x.AwayTeamId == currentMatch.HomeTeamId && x.HomeTeamId == currentMatch.AwayTeamId))
+            .Where(x => x.Status == Status.Finished)
+            .Where(x => (x.HomeTeamId == currentMatch.HomeTeamId && x.AwayTeamId == currentMatch.AwayTeamId) ||
+             (x.AwayTeamId == currentMatch.HomeTeamId && x.HomeTeamId == currentMatch.AwayTeamId))
             .ToListAsync(cancellationToken);
 
         return h2hMatches;

@@ -1,5 +1,5 @@
 ﻿using Matches.Application.Abstractions;
-using Matches.Domain.Entities;
+using Matches.Domain.Entities.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,10 +25,12 @@ public class UpdateMatchCommandHandler : IRequestHandler<UpdateMatchCommand>
         match.HomeGoals = command.HomeGoals;
         match.AwayGoals = command.AwayGoals;
         match.MatchDate = command.MatchDate;
-        match.LeagueId = command.LeagueId;
+        match.CompetitionId = command.CompetitionId;
         match.Status = Enum.Parse<Status>(command.Status);
-        match.SeasonId = command.SeasonId;
-        match.Round = command.Round;
+        match.Season = command.Season;
+        match.Matchday = command.Matchday;
+        match.Group = Enum.TryParse<Group>(command.Group, out var outGroup) ? outGroup : null;
+        match.Stage = Enum.Parse<Stage>(command.Stage);
 
         _context.Matches.Update(match);
 

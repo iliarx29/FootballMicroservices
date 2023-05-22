@@ -1,4 +1,4 @@
-﻿namespace Matches.Domain.Entities;
+﻿namespace Matches.Domain.Entities.Enums;
 
 public enum Position
 {

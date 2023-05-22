@@ -3,5 +3,7 @@
 public enum CompetitionType
 {
     League,
-    Cup
+    Cup,
+    League_Cup,
+    Playoffs
 }

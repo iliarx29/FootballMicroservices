@@ -2,4 +2,4 @@
 using MediatR;
 
 namespace Matches.Application.Matches.Queries.GetStandingsByLeagueAndSeason;
-public record GetStandingsByLeagueAndSeasonQuery(Guid LeagueId, Guid SeasonId) : IRequest<List<Ranking>>;
+public record GetStandingsByLeagueAndSeasonQuery(Guid LeagueId, string Season) : IRequest<List<Ranking>>;

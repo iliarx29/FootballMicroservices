@@ -5,7 +5,7 @@ using Matches.Application.Matches.Commands.UpdateMatch;
 using Matches.Application.Matches.Queries.GetH2HMatches;
 using Matches.Application.Matches.Queries.GetMatchById;
 using Matches.Application.Matches.Queries.GetMatches;
-using Matches.Application.Matches.Queries.GetMatchesByLeagueId;
+using Matches.Application.Matches.Queries.GetMatchesByCompetitionId;
 using Matches.Application.Matches.Queries.GetStandingsByLeagueAndSeason;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -38,10 +38,10 @@ public class MatchesController : ControllerBase
         return Ok(match);
     }
 
-    [HttpGet("leagues/{leagueId:guid}")]
-    public async Task<IActionResult> GetMatchesByLeagueId(Guid leagueId)
+    [HttpGet("competitions/{competitionId:guid}")]
+    public async Task<IActionResult> GetMatchesByCompetitionId(Guid competitionId)  
     {
-        var matches = await _mediator.Send(new GetMatchesByLeagueIdQuery(leagueId));
+        var matches = await _mediator.Send(new GetMatchesByCompetitionIdQuery(competitionId));
 
         return Ok(matches);
     }
@@ -49,9 +49,9 @@ public class MatchesController : ControllerBase
     [HttpGet("{id:guid}/h2h")]
     public async Task<IActionResult> GetH2HMatches(Guid id)
     {
-        var mathces = await _mediator.Send(new GetH2HMatchesQuery(id));
+        var matches = await _mediator.Send(new GetH2HMatchesQuery(id));
 
-        return Ok(mathces);
+        return Ok(matches);
     }
 
     [HttpPost]
@@ -59,13 +59,13 @@ public class MatchesController : ControllerBase
     {
         var match = await _mediator.Send(command);
 
-        return CreatedAtAction(nameof(GetMatchById), new { match.Id }, command);
+        return CreatedAtAction(nameof(GetMatchById), new { match.Id }, match);
     }
 
-    [HttpGet("leagues/{leagueId:guid}/standings")]
-    public async Task<IActionResult> GetStandingsByLeagueId(Guid leagueId, [FromQuery] Guid seasonId)
+    [HttpGet("competitions/{leagueId:guid}/standings")]
+    public async Task<IActionResult> GetStandingsByLeagueId(Guid leagueId, [FromQuery] string season)
     {
-        var standings = await _mediator.Send(new GetStandingsByLeagueAndSeasonQuery(leagueId, seasonId));
+        var standings = await _mediator.Send(new GetStandingsByLeagueAndSeasonQuery(leagueId, season));
 
         return Ok(standings);
     }
@@ -78,10 +78,10 @@ public class MatchesController : ControllerBase
         return NoContent();
     }
 
-    [HttpPost("leagues/{leagueId:guid}/import")]
-    public async Task<IActionResult> ImportMatches(Guid leagueId, [FromQuery] Guid seasonId)
+    [HttpPost("competitions/{competitionId:guid}/import")]
+    public async Task<IActionResult> ImportMatches(Guid competitionId, [FromQuery] string season)
     {
-        var result = await _mediator.Send(new ImportMatchesCommand(leagueId, seasonId));
+        var result = await _mediator.Send(new ImportMatchesCommand(competitionId, season));
 
         return Ok(new { CountOfMatches = result });
     }

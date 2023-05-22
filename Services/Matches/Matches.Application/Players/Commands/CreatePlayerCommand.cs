@@ -1,5 +1,6 @@
 ﻿using Matches.Application.Abstractions;
 using Matches.Domain.Entities;
+using Matches.Domain.Entities.Enums;
 using MediatR;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 

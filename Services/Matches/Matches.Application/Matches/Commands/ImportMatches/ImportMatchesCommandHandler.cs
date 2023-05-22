@@ -1,6 +1,7 @@
 ﻿using Matches.Application.Abstractions;
 using Matches.Application.Matches.Commands.ImportMatches.Models;
 using Matches.Domain.Entities;
+using Matches.Domain.Entities.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
@@ -21,10 +22,13 @@ public class ImportMatchesCommandHandler : IRequestHandler<ImportMatchesCommand,
     public async Task<int> Handle(ImportMatchesCommand request, CancellationToken cancellationToken)
     {
         var httpClient = _client.CreateClient();
-        var url = $"https://localhost:7057/api/leagues/{request.LeagueId}/teams";
+        var url = $"https://localhost:7057/api/leagues/{request.CompetitionId}/teams";
 
-        var response = await httpClient.GetFromJsonAsync<LeagueResponse>(url);
+        var response = await httpClient.GetFromJsonAsync<CompetitionResponse>(url);
 
+        if (response is null)
+            throw new ArgumentNullException();
+  
         var teamsDict = new Dictionary<string, Guid>();
 
         foreach (var item in response.Teams)
@@ -32,12 +36,12 @@ public class ImportMatchesCommandHandler : IRequestHandler<ImportMatchesCommand,
             teamsDict.Add(item.Name, item.Id);
         }
 
-        var result = await ImportMatches(teamsDict, request.LeagueId, request.SeasonId);
+        var result = await ImportMatches(teamsDict, request.CompetitionId, request.Season);
 
         return result;
     }
 
-    private async Task<int> ImportMatches(Dictionary<string, Guid> teamsDict, Guid leagueId, Guid seasonId)
+    private async Task<int> ImportMatches(Dictionary<string, Guid> teamsDict, Guid competitionId, string season)
     {
         var path = @"C:\Users\Ilya\Desktop\Книга1.xlsx";
 
@@ -70,10 +74,11 @@ public class ImportMatchesCommandHandler : IRequestHandler<ImportMatchesCommand,
                 AwayTeamId = awayTeamId,
                 HomeGoals = homeGoals,
                 AwayGoals = awayGoals,
-                LeagueId = leagueId,
-                SeasonId = seasonId,
+                CompetitionId = competitionId,
+                Season = season,
                 MatchDate = DateTime.SpecifyKind(date.Add(TimeSpan.Parse(time.ToString())),DateTimeKind.Utc),
-                Status = Status.Finished
+                Status = Status.Finished,
+                Stage = Stage.Regular_Season
             };
 
             matches.Add(match);

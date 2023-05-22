@@ -8,7 +8,9 @@ public record UpdateMatchCommand(
     int? HomeGoals,
     int? AwayGoals,
     DateTime? MatchDate,
-    Guid LeagueId,
-    Guid SeasonId,
+    Guid CompetitionId,
+    string Season,
     string Status,
-    int Round) : IRequest;
+    string Stage,
+    string? Group,
+    int? Matchday) : IRequest;
