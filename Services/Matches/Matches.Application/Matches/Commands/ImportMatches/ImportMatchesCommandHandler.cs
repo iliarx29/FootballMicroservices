@@ -1,8 +1,8 @@
 ﻿using Matches.Application.Abstractions;
 using Matches.Application.Matches.Commands.ImportMatches.Models;
+using Matches.Application.Result;
 using Matches.Domain.Entities;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using System.Net.Http.Json;
 
@@ -24,6 +24,12 @@ public class ImportMatchesCommandHandler : IRequestHandler<ImportMatchesCommand,
         var url = $"https://localhost:7057/api/leagues/{request.LeagueId}/teams";
 
         var response = await httpClient.GetFromJsonAsync<LeagueResponse>(url);
+
+        if (response is null)
+            return Result<int>.Error(ErrorCode.NotFound, $"League with id: '{command.LeagueId}' not found");
+
+        if (response.Teams is null)
+            return Result<int>.Error(ErrorCode.NotFound, $"There are no teams in league with id '{command.LeagueId}'.");
 
         var teamsDict = new Dictionary<string, Guid>();
 

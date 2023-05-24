@@ -1,10 +1,11 @@
 ﻿using Matches.Application.Abstractions;
+using Matches.Application.Result;
 using Matches.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Matches.Application.Matches.Queries.GetMatchesByLeagueId;
-public class GetMatchesLeagueIdQueryHandler : IRequestHandler<GetMatchesByLeagueIdQuery, IEnumerable<Match>>
+public class GetMatchesLeagueIdQueryHandler : IRequestHandler<GetMatchesByLeagueIdQuery, Result<IEnumerable<Match>>>
 {
     private readonly IMatchesDbContext _context;
 
@@ -13,13 +14,10 @@ public class GetMatchesLeagueIdQueryHandler : IRequestHandler<GetMatchesByLeague
         _context = context;
     }
 
-    public async Task<IEnumerable<Match>> Handle(GetMatchesByLeagueIdQuery query, CancellationToken cancellationToken)
+    public async Task<Result<IEnumerable<Match>>> Handle(GetMatchesByLeagueIdQuery query, CancellationToken cancellationToken)
     {
         var matches = await _context.Matches.AsNoTracking().Where(x => x.LeagueId == query.LeagueId).ToListAsync(cancellationToken);
 
-        if (matches is null)
-            throw new ArgumentNullException(nameof(matches), "Matches is null");
-
-        return matches;
+        return Result<IEnumerable<Match>>.Success(matches);
     }
 }

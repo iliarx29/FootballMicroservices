@@ -1,10 +1,13 @@
 ﻿using Matches.Application.Abstractions;
+using Matches.Application.Result;
 using Matches.Domain.Entities;
+using Matches.Domain.Exceptions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Matches.Application.Matches.Queries.GetH2HMatches;
-public class GetH2HMatchesQueryHandler : IRequestHandler<GetH2HMatchesQuery, IEnumerable<Match>>
+public class GetH2HMatchesQueryHandler : IRequestHandler<GetH2HMatchesQuery, Result<IEnumerable<Match>>>
 {
     private readonly IMatchesDbContext _context;
 
@@ -13,12 +16,12 @@ public class GetH2HMatchesQueryHandler : IRequestHandler<GetH2HMatchesQuery, IEn
         _context = context;
     }
 
-    public async Task<IEnumerable<Match>> Handle(GetH2HMatchesQuery query, CancellationToken cancellationToken)
+    public async Task<Result<IEnumerable<Match>>> Handle(GetH2HMatchesQuery query, CancellationToken cancellationToken)
     {
         var currentMatch = await _context.Matches.AsNoTracking().FirstOrDefaultAsync(x => x.Id == query.Id, cancellationToken);
 
         if (currentMatch is null)
-            throw new ArgumentNullException();
+            return Result<IEnumerable<Match>>.Error(ErrorCode.NotFound, $"Match with id: '{query.Id}' not found");
 
         var h2hMatches = await _context.Matches
             .AsNoTracking()
@@ -26,6 +29,6 @@ public class GetH2HMatchesQueryHandler : IRequestHandler<GetH2HMatchesQuery, IEn
             || x.AwayTeamId == currentMatch.HomeTeamId && x.HomeTeamId == currentMatch.AwayTeamId))
             .ToListAsync(cancellationToken);
 
-        return h2hMatches;
+        return Result<IEnumerable<Match>>.Success(h2hMatches);
     }
 }

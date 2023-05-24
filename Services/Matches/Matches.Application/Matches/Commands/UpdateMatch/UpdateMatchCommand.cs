@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Matches.Application.Result;
+using MediatR;
 
 namespace Matches.Application.Matches.Commands.UpdateMatch;
 public record UpdateMatchCommand(
@@ -11,4 +12,6 @@ public record UpdateMatchCommand(
     Guid LeagueId,
     Guid SeasonId,
     string Status,
-    int Round) : IRequest;
+    int Round,
+    List<Guid>? HomePlayers, 
+    List<Guid>? AwayPlayers) : IRequest<Result>;
