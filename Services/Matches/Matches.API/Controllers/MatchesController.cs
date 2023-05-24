@@ -1,4 +1,5 @@
-﻿using Matches.Application.Matches.Commands.CreateMatch;
+﻿using Matches.API.Common;
+using Matches.Application.Matches.Commands.CreateMatch;
 using Matches.Application.Matches.Commands.DeleteMatch;
 using Matches.Application.Matches.Commands.ImportMatches;
 using Matches.Application.Matches.Commands.UpdateMatch;
@@ -7,10 +8,14 @@ using Matches.Application.Matches.Queries.GetMatchById;
 using Matches.Application.Matches.Queries.GetMatches;
 using Matches.Application.Matches.Queries.GetMatchesByLeagueId;
 using Matches.Application.Matches.Queries.GetStandingsByLeagueAndSeason;
+using Matches.Application.Results;
+using Matches.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace Matches.API.Controllers;
+
 [Route("api/[controller]")]
 [ApiController]
 public class MatchesController : ControllerBase
@@ -23,51 +28,69 @@ public class MatchesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllMatches()
+    public async Task<MatchesActionResult> GetAllMatches()
     {
         var matches = await _mediator.Send(new GetMatchesQuery());
 
-        return Ok(matches);
+        if (matches.IsSuccess)
+            return new MatchesActionResult<IEnumerable<Match>>(HttpStatusCode.NotFound, ErrorCode.NotFound).Success<IEnumerable<Match>>(matches.Value);
+
+        return new MatchesActionResult<Match>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail<Match>(ErrorCode.NotFound, matches.ErrorMessage);
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetMatchById(Guid id)
+    public async Task<MatchesActionResult> GetMatchById(Guid id)
     {
         var match = await _mediator.Send(new GetMatchByIdQuery(id));
 
-        return Ok(match);
+        if (match.IsSuccess)
+            return new MatchesActionResult<Match>(HttpStatusCode.OK, ErrorCode.OK).Success<Match>(match.Value);
+
+        return new MatchesActionResult<Match>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail<Match>(ErrorCode.NotFound, match.ErrorMessage);
     }
 
     [HttpGet("leagues/{leagueId:guid}")]
-    public async Task<IActionResult> GetMatchesByLeagueId(Guid leagueId)
+    public async Task<MatchesActionResult> GetMatchesByLeagueId(Guid leagueId)
     {
         var matches = await _mediator.Send(new GetMatchesByLeagueIdQuery(leagueId));
 
-        return Ok(matches);
+        if (matches.IsSuccess)
+            return new MatchesActionResult<IEnumerable<Match>>(HttpStatusCode.NotFound, ErrorCode.NotFound).Success<IEnumerable<Match>>(matches.Value);
+
+        return new MatchesActionResult<Match>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail<Match>(ErrorCode.NotFound, matches.ErrorMessage);
     }
 
     [HttpGet("{id:guid}/h2h")]
-    public async Task<IActionResult> GetH2HMatches(Guid id)
+    public async Task<MatchesActionResult> GetH2HMatches(Guid id)
     {
-        var mathces = await _mediator.Send(new GetH2HMatchesQuery(id));
+        var matches = await _mediator.Send(new GetH2HMatchesQuery(id));
 
-        return Ok(mathces);
+        if (matches.IsSuccess)
+            return new MatchesActionResult<IEnumerable<Match>>(HttpStatusCode.NotFound, ErrorCode.NotFound).Success<IEnumerable<Match>>(matches.Value);
+
+        return new MatchesActionResult<Match>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail<Match>(ErrorCode.NotFound, matches.ErrorMessage);
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddMatch(CreateMatchCommand command)
+    public async Task<MatchesActionResult> AddMatch(CreateMatchCommand command)
     {
         var match = await _mediator.Send(command);
 
-        return CreatedAtAction(nameof(GetMatchById), new { match.Id }, command);
+        if (match.IsSuccess)
+            return new MatchesActionResult<Match>(HttpStatusCode.NotFound, ErrorCode.NotFound).Success<Match>(match.Value);
+
+        return new MatchesActionResult<Match>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail<Match>(ErrorCode.NotFound, match.ErrorMessage);
     }
 
     [HttpGet("leagues/{leagueId:guid}/standings")]
-    public async Task<IActionResult> GetStandingsByLeagueId(Guid leagueId, [FromQuery] Guid seasonId)
+    public async Task<MatchesActionResult> GetStandingsByLeagueId(Guid leagueId, [FromQuery] Guid seasonId)
     {
         var standings = await _mediator.Send(new GetStandingsByLeagueAndSeasonQuery(leagueId, seasonId));
 
-        return Ok(standings);
+        if (standings.IsSuccess)
+            return new MatchesActionResult<IEnumerable<Ranking>>(HttpStatusCode.NotFound, ErrorCode.NotFound).Success<IEnumerable<Ranking>>(standings.Value);
+
+        return new MatchesActionResult<IEnumerable<Ranking>>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail<Ranking>(ErrorCode.NotFound, standings.ErrorMessage);
     }
 
     [HttpDelete("{id:guid}")]

@@ -1,5 +1,6 @@
 ﻿using Matches.Application.Abstractions;
 using Matches.Application.Matches.Commands.ImportMatches.Models;
+using Matches.Application.Results;
 using Matches.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +8,7 @@ using OfficeOpenXml;
 using System.Net.Http.Json;
 
 namespace Matches.Application.Matches.Commands.ImportMatches;
-public class ImportMatchesCommandHandler : IRequestHandler<ImportMatchesCommand, int>
+public class ImportMatchesCommandHandler : IRequestHandler<ImportMatchesCommand, Result<int>>
 {
     private readonly IHttpClientFactory _client;
     private readonly IMatchesDbContext _context;
@@ -18,12 +19,18 @@ public class ImportMatchesCommandHandler : IRequestHandler<ImportMatchesCommand,
         _context = context;
     }
 
-    public async Task<int> Handle(ImportMatchesCommand request, CancellationToken cancellationToken)
+    public async Task<Result<int>> Handle(ImportMatchesCommand command, CancellationToken cancellationToken)
     {
         var httpClient = _client.CreateClient();
-        var url = $"https://localhost:7057/api/leagues/{request.LeagueId}/teams";
+        var url = $"https://localhost:7057/api/leagues/{command.LeagueId}/teams";
 
         var response = await httpClient.GetFromJsonAsync<LeagueResponse>(url);
+
+        if (response is null)
+            return Result<int>.Error(ErrorCode.NotFound, $"League with id: '{command.LeagueId}' not found");
+
+        if (response.Teams is null)
+            return Result<int>.Error(ErrorCode.NotFound, $"There are no teams in league with id '{command.LeagueId}'.");
 
         var teamsDict = new Dictionary<string, Guid>();
 
@@ -32,9 +39,9 @@ public class ImportMatchesCommandHandler : IRequestHandler<ImportMatchesCommand,
             teamsDict.Add(item.Name, item.Id);
         }
 
-        var result = await ImportMatches(teamsDict, request.LeagueId, request.SeasonId);
+        var result = await ImportMatches(teamsDict, command.LeagueId, command.SeasonId);
 
-        return result;
+        return Result<int>.Success(result);
     }
 
     private async Task<int> ImportMatches(Dictionary<string, Guid> teamsDict, Guid leagueId, Guid seasonId)

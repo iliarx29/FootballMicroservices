@@ -1,9 +1,10 @@
 ﻿using Matches.Application.Abstractions;
+using Matches.Application.Results;
 using Matches.Domain.Entities;
 using MediatR;
 
 namespace Matches.Application.Matches.Commands.CreateMatch;
-public class CreateMatchCommandHandler : IRequestHandler<CreateMatchCommand, Match>
+public class CreateMatchCommandHandler : IRequestHandler<CreateMatchCommand, Result<Match>>
 {
     private readonly IMatchesDbContext _context;
 
@@ -12,7 +13,7 @@ public class CreateMatchCommandHandler : IRequestHandler<CreateMatchCommand, Mat
         _context = context;
     }
 
-    public async Task<Match> Handle(CreateMatchCommand command, CancellationToken cancellationToken)
+    public async Task<Result<Match>> Handle(CreateMatchCommand command, CancellationToken cancellationToken)
     {
         var match = new Match()
         {
@@ -32,6 +33,6 @@ public class CreateMatchCommandHandler : IRequestHandler<CreateMatchCommand, Mat
         _context.Matches.Attach(match);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return match;
+        return Result<Match>.Success(match);
     }
 }

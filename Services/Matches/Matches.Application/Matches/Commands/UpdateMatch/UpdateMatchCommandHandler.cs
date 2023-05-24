@@ -1,11 +1,12 @@
 ﻿using Matches.Application.Abstractions;
+using Matches.Application.Results;
 using Matches.Domain.Entities;
 using Matches.Domain.Exceptions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Matches.Application.Matches.Commands.UpdateMatch;
-public class UpdateMatchCommandHandler : IRequestHandler<UpdateMatchCommand>
+public class UpdateMatchCommandHandler : IRequestHandler<UpdateMatchCommand, Result>
 {
     private readonly IMatchesDbContext _context;
 
@@ -14,12 +15,12 @@ public class UpdateMatchCommandHandler : IRequestHandler<UpdateMatchCommand>
         _context = context;
     }
 
-    public async Task Handle(UpdateMatchCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(UpdateMatchCommand command, CancellationToken cancellationToken)
     {
         var match = await _context.Matches.FirstOrDefaultAsync(x => x.Id == command.Id);
 
         if (match is null)
-            throw new NotFoundException($"Match with id: '{command.Id}' doesn't exist.");
+            return Result.Error(ErrorCode.NotFound, $"Match with id: '{command.Id}' not found");
 
         match.HomeTeamId = command.HomeTeamId;
         match.AwayTeamId = command.AwayTeamId;
@@ -34,5 +35,7 @@ public class UpdateMatchCommandHandler : IRequestHandler<UpdateMatchCommand>
         _context.Matches.Update(match);
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        return Result.Success();
     }
 }
