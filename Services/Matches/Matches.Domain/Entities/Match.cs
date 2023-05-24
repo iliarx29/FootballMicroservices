@@ -6,10 +6,10 @@ public class Match
 {
     public Guid Id { get; set; } //PK
     public Guid HomeTeamId { get; set; } //FK
-    public Team HomeTeam { get; set; } = new();
+    public Team HomeTeam { get; set; }
 
     public Guid AwayTeamId { get; set; } // FK
-    public Team AwayTeam { get; set; } = new();
+    public Team AwayTeam { get; set; }
 
     public int? HomeGoals { get; set; }
     public int? AwayGoals { get; set; }

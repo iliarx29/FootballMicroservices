@@ -1,4 +1,5 @@
 using Hangfire;
+using Matches.API.Middlewares;
 using Matches.Application;
 using Matches.Infrastructure;
 

@@ -1,38 +1,35 @@
-﻿using Matches.Application.Abstractions;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Matches.Application.Abstractions;
+using Matches.Application.Results;
 using Matches.Domain.Entities;
+using Matches.Domain.Entities.Enums;
 using MediatR;
 using System.Linq.Dynamic.Core;
-using Microsoft.EntityFrameworkCore;
-using Matches.Application.Matches.Queries.GetStandingsByLeagueAndSeason;
-using System.Linq;
-using Matches.Application.Results;
-using Microsoft.EntityFrameworkCore.Storage;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
 
-namespace Matches.Application.Matches.Queries.GetStandingsByLeagueId;
-public class GetStandingsByLeagueAndSeasonQueryHandler : IRequestHandler<GetStandingsByLeagueAndSeasonQuery, Result<List<Ranking>>>
+namespace Matches.Application.Matches.Queries.GetStandingsByCompetitionAndSeason;
+public class GetStandingsByCompetitionAndSeasonQueryHandler : IRequestHandler<GetStandingsByCompetitionAndSeasonQuery, Result<List<Ranking>>>
 {
     private readonly IMatchesDbContext _context;
     private readonly IMapper _mapper;
 
-    public GetStandingsByLeagueAndSeasonQueryHandler(IMatchesDbContext context, IMapper mapper)
+    public GetStandingsByCompetitionAndSeasonQueryHandler(IMatchesDbContext context, IMapper mapper)
     {
         _context = context;
         _mapper = mapper;
     }
 
-    public async Task<Result<List<Ranking>>> Handle(GetStandingsByLeagueAndSeasonQuery query, CancellationToken cancellationToken)
+    public async Task<Result<List<Ranking>>> Handle(GetStandingsByCompetitionAndSeasonQuery query, CancellationToken cancellationToken)
     {
         var standings = _context.Matches
-                        .Where(x => x.LeagueId == query.LeagueId)
-                        .Where(x => x.SeasonId == query.SeasonId)
+                        .Where(x => x.CompetitionId == query.CompetitionId)
+                        .Where(x => x.Season == query.Season)
                         .Where(x => x.Status == Status.Finished)
                         .Select(x => new MatchForTeam { TeamId = x.HomeTeamId, GoalsScored = x.HomeGoals, GoalsConceded = x.AwayGoals })
                 .Concat(
                          _context.Matches
-                        .Where(x => x.LeagueId == query.LeagueId)
-                        .Where(x => x.SeasonId == query.SeasonId)
+                        .Where(x => x.CompetitionId == query.CompetitionId)
+                        .Where(x => x.Season == query.Season)
                         .Where(x => x.Status == Status.Finished)
                         .Select(x => new MatchForTeam { TeamId = x.AwayTeamId, GoalsScored = x.AwayGoals, GoalsConceded = x.HomeGoals }))
         .GroupBy(x => x.TeamId)

@@ -1,6 +1,6 @@
-﻿using Matches.Application.Result;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
+﻿using Matches.Application.Results;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using System.Net;
 
 namespace Matches.API.Common;

@@ -1,7 +1,6 @@
 ﻿using Matches.Application.Abstractions;
 using Matches.Application.Results;
-using Matches.Domain.Entities;
-using Matches.Domain.Exceptions;
+using Matches.Domain.Entities.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 

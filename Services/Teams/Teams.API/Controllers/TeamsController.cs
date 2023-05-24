@@ -17,31 +17,43 @@ public class TeamsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllTeams()
     {
-        var teams = await _teamService.GetAllTeamsAsync();
+        var result = await _teamService.GetAllTeamsAsync();
 
-        return Ok(teams);
+        if (!result.IsSuccess)
+            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
+
+        return Ok(result.Value);
     }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetTeamById(Guid id)
     {
-        var team = await _teamService.GetTeamByIdAsync(id);
+        var result = await _teamService.GetTeamByIdAsync(id);
 
-        return Ok(team);
+        if (!result.IsSuccess)
+            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
+
+        return Ok(result.Value);
     }
 
     [HttpPost]
     public async Task<IActionResult> AddTeam(TeamRequest teamRequest)
     {
-        var teamResponse = await _teamService.AddTeamAsync(teamRequest);
+        var result = await _teamService.AddTeamAsync(teamRequest);
 
-        return CreatedAtAction(nameof(GetTeamById), new { teamResponse.Id}, teamResponse);
+        if (!result.IsSuccess)
+            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
+
+        return CreatedAtAction(nameof(GetTeamById), new { result.Value?.Id }, result.Value);
     }
 
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> UpdateTeam(Guid id, TeamRequest teamRequest)
     {
-        await _teamService.UpdateTeamAsync(id, teamRequest);
+        var result = await _teamService.UpdateTeamAsync(id, teamRequest);
+
+        if (!result.IsSuccess)
+            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
 
         return NoContent();
     }
@@ -49,7 +61,10 @@ public class TeamsController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteTeam(Guid id)
     {
-        await _teamService.DeleteTeamAsync(id);
+        var result = await _teamService.DeleteTeamAsync(id);
+
+        if(!result.IsSuccess)
+            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
 
         return NoContent();
     }
@@ -59,7 +74,10 @@ public class TeamsController : ControllerBase
     {
         var result = await _teamService.ImportTeams();
 
-        return Ok(result);
+        if (!result.IsSuccess)
+            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
+
+        return Ok(result.Value);
 
     }
 }

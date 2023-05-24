@@ -17,31 +17,43 @@ public class CompetitionsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllCompetitions()
     {
-        var competitions = await _competitionService.GetAllCompetitionsAsync();
+        var result = await _competitionService.GetAllCompetitionsAsync();
 
-        return Ok(competitions);
+        if (!result.IsSuccess)
+            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
+
+        return Ok(result.Value);
     }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetCompetitionById(Guid id)
     {
-        var competition = await _competitionService.GetCompetitionByIdAsync(id);
+        var result = await _competitionService.GetCompetitionByIdAsync(id);
 
-        return Ok(competition);
+        if (!result.IsSuccess)
+            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
+
+        return Ok(result.Value);
     }
 
     [HttpPost]
     public async Task<IActionResult> AddCompetition(CompetitionRequest competitionRequest)
     {
-        var competitionResponse = await _competitionService.AddCompetitionAsync(competitionRequest);
+        var result = await _competitionService.AddCompetitionAsync(competitionRequest);
 
-        return CreatedAtAction(nameof(GetCompetitionById), new { competitionResponse.Id }, competitionResponse);
+        if (!result.IsSuccess)
+            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
+
+        return CreatedAtAction(nameof(GetCompetitionById), new { result.Value?.Id }, result.Value);
     }
 
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> UpdateCompetition(Guid id, CompetitionRequest leagueRequest)
     {
-        await _competitionService.UpdateCompetitionAsync(id, leagueRequest);
+        var result = await _competitionService.UpdateCompetitionAsync(id, leagueRequest);
+
+        if (!result.IsSuccess)
+            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
 
         return NoContent();
     }
@@ -49,7 +61,10 @@ public class CompetitionsController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteCompetition(Guid id)
     {
-        await _competitionService.DeleteCompetitionAsync(id);
+        var result = await _competitionService.DeleteCompetitionAsync(id);
+
+        if (!result.IsSuccess)
+            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
 
         return NoContent();
     }
@@ -57,16 +72,33 @@ public class CompetitionsController : ControllerBase
     [HttpGet("{id:guid}/teams")]
     public async Task<IActionResult> GetCompetitionWithTeams(Guid id)
     {
-        var competitionResponse = await _competitionService.GetCompetitionWithTeams(id);
+        var result = await _competitionService.GetCompetitionWithTeams(id);
 
-        return Ok(competitionResponse);
+        if (!result.IsSuccess)
+            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
+
+        return Ok(result.Value);
     }
 
-    [HttpPost("{id:guid}/teams")]
+    [HttpPut("{id:guid}/teams")]
     public async Task<IActionResult> AddTeamsToCompetition(Guid id, [FromBody] List<Guid> teamIds)
     {
-       var result = await _competitionService.AddTeamsToCompetition(id, teamIds);
+        var result = await _competitionService.AddTeamsToCompetition(id, teamIds);
 
-        return Ok(new {CountOfAddedTeamToCompetition = result});
+        if (!result.IsSuccess)
+            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
+
+        return Ok(new { CountOfAddedTeamToCompetition = result.Value });
+    }
+
+    [HttpDelete("{id:guid}/teams")]
+    public async Task<IActionResult> RemoveTeamsFromCompetition(Guid id, [FromBody] List<Guid> teamsIds)
+    {
+        var result = await _competitionService.RemoveTeamsFromCompetition(id, teamsIds);
+
+        if (!result.IsSuccess)
+            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
+
+        return Ok(new { CountOfRemovedTeamFromCompetition = result.Value });
     }
 }
