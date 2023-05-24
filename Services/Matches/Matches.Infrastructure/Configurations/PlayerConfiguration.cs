@@ -20,6 +20,10 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
          .WithMany(m => m.AwayPlayers)
          .UsingEntity(j => j.ToTable("AwayPlayersMatches"));
 
+        builder.HasOne(p => p.Team)
+            .WithMany()
+            .HasForeignKey(p => p.TeamId);
+
         builder.Property(p => p.Position)
             .HasConversion<string>();
 

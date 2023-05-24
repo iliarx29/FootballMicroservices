@@ -2,48 +2,43 @@
 using Matches.Application.Matches.Commands.ImportMatches.Models;
 using Matches.Domain.Entities;
 using Matches.Domain.Entities.Enums;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using System.Net.Http.Json;
 
-namespace Matches.Application.Matches.Commands.ImportMatches;
-public class ImportMatchesCommandHandler : IRequestHandler<ImportMatchesCommand, int>
+namespace Matches.Application;
+public class ImportDataReccuringJob
 {
     private readonly IHttpClientFactory _client;
     private readonly IMatchesDbContext _context;
 
-    public ImportMatchesCommandHandler(IHttpClientFactory client, IMatchesDbContext context)
+    public ImportDataReccuringJob(IHttpClientFactory client, IMatchesDbContext context)
     {
         _client = client;
         _context = context;
     }
 
-    public async Task<int> Handle(ImportMatchesCommand request, CancellationToken cancellationToken)
-    {
-        //await _context.Matches.ExecuteDeleteAsync();
+    //public async Task Handle(Guid leagueId, string season)
+    //{
+    //    var httpClient = _client.CreateClient();
+    //    var url = $"https://localhost:7057/api/competitions/{leagueId}/teams";
 
-        var httpClient = _client.CreateClient();
-        var url = $"https://localhost:7057/api/competitions/{request.CompetitionId}/teams";
+    //    var response = await httpClient.GetFromJsonAsync<CompetitionResponse>(url);
 
-        var response = await httpClient.GetFromJsonAsync<CompetitionResponse>(url);
+    //    if (response is null)
+    //        throw new ArgumentNullException();
 
-        if (response is null)
-            throw new ArgumentNullException();
-  
-        var teamsDict = new Dictionary<string, Guid>();
+    //    var teamsDict = new Dictionary<string, Guid>();
 
-        foreach (var item in response.Teams)
-        {
-            teamsDict.Add(item.Name, item.Id);
-        }
+    //    foreach (var item in response.Teams)
+    //    {
+    //        teamsDict.Add(item.Name, item.Id);
+    //    }
 
-        var result = await ImportMatches(teamsDict, request.CompetitionId, request.Season);
+    //    await ImportMatches(teamsDict, leagueId, season);
+    //}
 
-        return result;
-    }
-
-    private async Task<int> ImportMatches(Dictionary<string, Guid> teamsDict, Guid competitionId, string season)
+    private async Task ImportMatches(Guid competitionId, string season)
     {
         var path = @"C:\Users\Ilya\Desktop\matches.xlsx";
 
@@ -53,8 +48,16 @@ public class ImportMatchesCommandHandler : IRequestHandler<ImportMatchesCommand,
         var worksheet = excelPackage.Workbook.Worksheets[0];
         var nEndRow = worksheet.Dimension.End.Row;
 
-        var numbOfMatchesAdded = 0;
-        List<Match> matches = new();
+        List<Match> matchesToAdd = new();
+
+        var teamsDict = new Dictionary<string, Guid>();
+
+        var teams = await _context.Teams.ToListAsync();
+
+        foreach (var item in teams)
+        {
+            teamsDict.Add(item.Name, item.Id);
+        }
 
         for (int nRow = 2; nRow <= nEndRow; nRow++)
         {
@@ -78,20 +81,23 @@ public class ImportMatchesCommandHandler : IRequestHandler<ImportMatchesCommand,
                 AwayGoals = awayGoals,
                 CompetitionId = competitionId,
                 Season = season,
-                MatchDate = DateTime.SpecifyKind(date.Add(TimeSpan.Parse(time.ToString())),DateTimeKind.Utc),
+                MatchDate = DateTime.SpecifyKind(date.Add(TimeSpan.Parse(time.ToString())), DateTimeKind.Utc),
                 Status = Status.Finished,
-                Stage = Stage.Regular_Season,
-
+                Stage = Stage.Regular_Season
             };
 
-            matches.Add(match);
-            numbOfMatchesAdded++;
+            matchesToAdd.Add(match);
         }
 
-        await _context.Matches.AddRangeAsync(matches);
+        await _context.Matches.BulkInsertAsync(matchesToAdd, options =>
+        {
+            options.InsertIfNotExists = true;
+            options.ColumnPrimaryKeyExpression = x => new { x.HomeTeamId, x.AwayTeamId, x.MatchDate };
+        });
 
-        await _context.SaveChangesAsync();
+        //await _context.Matches.AddRangeAsync(matchesToAdd);
 
-        return numbOfMatchesAdded;
+        //await _context.SaveChangesAsync();
     }
+
 }

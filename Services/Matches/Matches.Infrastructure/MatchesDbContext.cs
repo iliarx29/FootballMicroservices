@@ -13,6 +13,7 @@ public class MatchesDbContext : DbContext, IMatchesDbContext
 
     public DbSet<Match> Matches { get; set; }
     public DbSet<Player> Players { get; set; }
+    public DbSet<Team> Teams { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

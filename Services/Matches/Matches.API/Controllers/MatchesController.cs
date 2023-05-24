@@ -1,4 +1,6 @@
-﻿using Matches.Application.Matches.Commands.CreateMatch;
+﻿using Hangfire;
+using Matches.Application;
+using Matches.Application.Matches.Commands.CreateMatch;
 using Matches.Application.Matches.Commands.DeleteMatch;
 using Matches.Application.Matches.Commands.ImportMatches;
 using Matches.Application.Matches.Commands.UpdateMatch;
@@ -16,10 +18,14 @@ namespace Matches.API.Controllers;
 public class MatchesController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly IRecurringJobManager _recurringJobManager;
+    private readonly ImportDataReccuringJob _importJob;
 
-    public MatchesController(IMediator context)
+    public MatchesController(IMediator context, IRecurringJobManager recurringJobManager, ImportDataReccuringJob importJob)
     {
         _mediator = context;
+        _recurringJobManager = recurringJobManager;
+        _importJob = importJob;
     }
 
     [HttpGet]
@@ -62,7 +68,7 @@ public class MatchesController : ControllerBase
         return CreatedAtAction(nameof(GetMatchById), new { match.Id }, match);
     }
 
-    [HttpGet("competitions/{leagueId:guid}/standings")]
+    [HttpGet("leagues/{leagueId:guid}/standings")]
     public async Task<IActionResult> GetStandingsByLeagueId(Guid leagueId, [FromQuery] string season)
     {
         var standings = await _mediator.Send(new GetStandingsByLeagueAndSeasonQuery(leagueId, season));
@@ -91,6 +97,13 @@ public class MatchesController : ControllerBase
     {
         await _mediator.Send(command);
 
+        return NoContent();
+    }
+
+    [HttpPost("competitions/{leagueId:guid}/jobImport")]
+    public IActionResult ImportJob(Guid leagueId, [FromQuery] string season)
+    {
+        _recurringJobManager.AddOrUpdate("importJob", () =>  _importJob.Handle(leagueId, season), Cron.Daily(19));
         return NoContent();
     }
 }

@@ -16,6 +16,6 @@ export const options = {
     },
 };
 export default function () {
-    http.get("https://localhost:7118/api/matches");
+    http.get("https://localhost:7118/api/matches/leagues/4f47e866-d3f9-4109-8e87-6249ab21cbbd/standings?season=2022/2023");
     sleep(1);
 }

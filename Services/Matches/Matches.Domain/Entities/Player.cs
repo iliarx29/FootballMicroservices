@@ -7,6 +7,7 @@ public class Player
     public string Name { get; set; } = string.Empty;
     public string CountryName { get; set; } = string.Empty;
     public Guid? TeamId { get; set; }
+    public Team Team { get; set; } = new();
     public int? ShirtNumber { get; set; }
     public List<Match> HomeMatches { get; set; } = new();
     public List<Match> AwayMatches { get; set; } = new();
