@@ -2,5 +2,5 @@
 using MediatR;
 
 namespace Matches.Application.Matches.Commands.ImportMatches;
-public record ImportMatchesCommand(Guid LeagueId, Guid SeasonId) : IRequest<Result<int>>;
+public record ImportMatchesCommand(Guid CompetitionId, string Season) : IRequest<Result<int>>;
 

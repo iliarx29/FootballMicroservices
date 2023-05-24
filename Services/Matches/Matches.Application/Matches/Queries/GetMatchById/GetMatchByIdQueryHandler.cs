@@ -27,9 +27,11 @@ public class GetMatchByIdQueryHandler : IRequestHandler<GetMatchByIdQuery, Resul
                 AwayTeamId = x.AwayTeamId, 
                 MatchDate = x.MatchDate,
                 Status = x.Status, 
-                Round = x.Round,
-                LeagueId = x.LeagueId, 
-                SeasonId = x.SeasonId,
+                Matchday = x.Matchday,
+                CompetitionId = x.CompetitionId, 
+                Season = x.Season,
+                Stage = x.Stage,
+                Group = x.Group,
                 HomePlayers = x.HomePlayers.Select(x => new Player { Id = x.Id, Name = x.Name }).ToList(),
                 AwayPlayers = x.AwayPlayers.Select(x => new Player { Id = x.Id, Name = x.Name }).ToList()
             })

@@ -12,8 +12,8 @@ public class MatchesDbContext : DbContext, IMatchesDbContext
     { }
 
     public DbSet<Match> Matches { get; set; }
-    public DbSet<Season> Seasons { get; set; }
     public DbSet<Player> Players { get; set; }
+    public DbSet<Team> Teams { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -21,19 +21,5 @@ public class MatchesDbContext : DbContext, IMatchesDbContext
 
         modelBuilder.ApplyConfiguration(new MatchConfiguration());
         modelBuilder.ApplyConfiguration(new PlayerConfiguration());
-
-        modelBuilder.Entity<Season>(s =>
-        {
-            s.HasData(
-                new Season
-                {
-                    Id = Guid.NewGuid(),
-                    Years = "2022/2023",
-                    StartDate = new DateTime(2022, 8, 5, 0, 0, 0, DateTimeKind.Utc),
-                    EndDate = null,
-                    LeagueId = new Guid("6e64b1e4-d662-4c04-8d67-0db65ead9eb7"),
-                    TeamWinnerId = null
-                });
-        });
     }
 }

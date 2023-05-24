@@ -90,7 +90,7 @@ public class TeamService : ITeamService
         var numbOfMatchesAdded = 0;
         List<Team> teams = new();
 
-        for (int nRow = 2; nRow <= nEndRow; nRow++)
+        for (int nRow = 2; nRow <= 25; nRow++)
         {
             var row = worksheet.Cells[nRow, 1, nRow, worksheet.Dimension.End.Column];
 
@@ -100,7 +100,6 @@ public class TeamService : ITeamService
             var city = row[nRow, 4].GetValue<string>();
             var emblem = row[nRow, 5].GetValue<string>();
             var stadium = row[nRow, 6].GetValue<string>();
-            var leagueId = row[nRow, 7].GetValue<string>();
             
             var team = new Team
             {
@@ -110,7 +109,6 @@ public class TeamService : ITeamService
                 City = city,
                 Emblem = "",
                 Stadium = stadium,
-                LeagueId = new Guid(leagueId),
             };
 
             teams.Add(team);

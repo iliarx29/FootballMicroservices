@@ -11,7 +11,7 @@ public static class DependencyInjection
     {
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
         services.AddScoped<ITeamService, TeamService>()
-                .AddScoped<ILeagueService, LeagueService>();
+                .AddScoped<ICompetitionService, CompetitionService>();
 
         return services;
     }

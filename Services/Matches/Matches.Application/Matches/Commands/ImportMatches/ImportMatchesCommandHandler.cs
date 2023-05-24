@@ -2,12 +2,13 @@
 using Matches.Application.Matches.Commands.ImportMatches.Models;
 using Matches.Application.Result;
 using Matches.Domain.Entities;
+using Matches.Domain.Entities.Enums;
 using MediatR;
 using OfficeOpenXml;
 using System.Net.Http.Json;
 
 namespace Matches.Application.Matches.Commands.ImportMatches;
-public class ImportMatchesCommandHandler : IRequestHandler<ImportMatchesCommand, int>
+public class ImportMatchesCommandHandler : IRequestHandler<ImportMatchesCommand, Result<int>>
 {
     private readonly IHttpClientFactory _client;
     private readonly IMatchesDbContext _context;
@@ -18,12 +19,14 @@ public class ImportMatchesCommandHandler : IRequestHandler<ImportMatchesCommand,
         _context = context;
     }
 
-    public async Task<int> Handle(ImportMatchesCommand request, CancellationToken cancellationToken)
+    public async Task<Result<int>> Handle(ImportMatchesCommand request, CancellationToken cancellationToken)
     {
-        var httpClient = _client.CreateClient();
-        var url = $"https://localhost:7057/api/leagues/{request.LeagueId}/teams";
+        //await _context.Matches.ExecuteDeleteAsync();
 
-        var response = await httpClient.GetFromJsonAsync<LeagueResponse>(url);
+        var httpClient = _client.CreateClient();
+        var url = $"https://localhost:7057/api/competitions/{request.CompetitionId}/teams";
+
+        var response = await httpClient.GetFromJsonAsync<CompetitionResponse>(url);
 
         if (response is null)
             return Result<int>.Error(ErrorCode.NotFound, $"League with id: '{command.LeagueId}' not found");
@@ -38,14 +41,14 @@ public class ImportMatchesCommandHandler : IRequestHandler<ImportMatchesCommand,
             teamsDict.Add(item.Name, item.Id);
         }
 
-        var result = await ImportMatches(teamsDict, request.LeagueId, request.SeasonId);
+        var result = await ImportMatches(teamsDict, request.CompetitionId, request.Season);
 
         return result;
     }
 
-    private async Task<int> ImportMatches(Dictionary<string, Guid> teamsDict, Guid leagueId, Guid seasonId)
+    private async Task<int> ImportMatches(Dictionary<string, Guid> teamsDict, Guid competitionId, string season)
     {
-        var path = @"C:\Users\Ilya\Desktop\Книга1.xlsx";
+        var path = @"C:\Users\Ilya\Desktop\matches.xlsx";
 
         using var stream = System.IO.File.OpenRead(path);
         using var excelPackage = new ExcelPackage(stream);
@@ -76,10 +79,12 @@ public class ImportMatchesCommandHandler : IRequestHandler<ImportMatchesCommand,
                 AwayTeamId = awayTeamId,
                 HomeGoals = homeGoals,
                 AwayGoals = awayGoals,
-                LeagueId = leagueId,
-                SeasonId = seasonId,
+                CompetitionId = competitionId,
+                Season = season,
                 MatchDate = DateTime.SpecifyKind(date.Add(TimeSpan.Parse(time.ToString())),DateTimeKind.Utc),
-                Status = Status.Finished
+                Status = Status.Finished,
+                Stage = Stage.Regular_Season,
+
             };
 
             matches.Add(match);
