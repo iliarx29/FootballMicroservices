@@ -1,4 +1,4 @@
-﻿using Matches.Application.Result;
+﻿using Matches.Application.Results;
 using MediatR;
 
 namespace Matches.Application.Matches.Commands.UpdateMatch;

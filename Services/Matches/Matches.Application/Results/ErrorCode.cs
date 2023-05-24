@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Matches.Application.Result;
+namespace Matches.Application.Results;
 
 public enum ErrorCode
 {

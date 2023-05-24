@@ -5,7 +5,7 @@ using System.Linq.Dynamic.Core;
 using Microsoft.EntityFrameworkCore;
 using Matches.Application.Matches.Queries.GetStandingsByLeagueAndSeason;
 using System.Linq;
-using Matches.Application.Result;
+using Matches.Application.Results;
 using Microsoft.EntityFrameworkCore.Storage;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;

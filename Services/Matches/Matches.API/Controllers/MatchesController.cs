@@ -13,8 +13,10 @@ using Matches.Application.Result;
 using Matches.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace Matches.API.Controllers;
+
 [Route("api/[controller]")]
 [ApiController]
 public class MatchesController : ControllerBase

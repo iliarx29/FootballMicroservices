@@ -1,5 +1,5 @@
 ﻿using Matches.Application.Abstractions;
-using Matches.Application.Result;
+using Matches.Application.Results;
 using Matches.Domain.Entities;
 using Matches.Domain.Entities.Enums;
 using MediatR;

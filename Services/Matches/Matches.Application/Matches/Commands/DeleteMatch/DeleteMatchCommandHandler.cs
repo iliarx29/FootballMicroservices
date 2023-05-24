@@ -1,12 +1,7 @@
 ﻿using Matches.Application.Abstractions;
-using Matches.Application.Result;
+using Matches.Application.Results;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Matches.Application.Matches.Commands.DeleteMatch;
 public class DeleteMatchCommandHandler : IRequestHandler<DeleteMatchCommand, Result>

@@ -1,6 +1,6 @@
-﻿using Matches.Application.Result;
+﻿using Matches.Application.Results;
 
-namespace Matches.Application.Result;
+namespace Matches.Application.Results;
 public class Result : ResultBase
 {
     public Result(bool isSuccess, Enum code, string customErrorMessage = null)

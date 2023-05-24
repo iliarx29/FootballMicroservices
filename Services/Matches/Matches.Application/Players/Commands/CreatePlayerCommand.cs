@@ -1,4 +1,5 @@
-﻿using Matches.Application.Abstractions;
+﻿using FluentValidation;
+using Matches.Application.Abstractions;
 using Matches.Application.Result;
 using Matches.Domain.Entities;
 using Matches.Domain.Entities.Enums;
@@ -51,3 +52,4 @@ public class CreatePlayerCommandValidator : AbstractValidator<CreatePlayerComman
         RuleFor(x => x.Position).IsEnumName(typeof(Position));
     }
 }
+

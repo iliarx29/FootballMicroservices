@@ -1,4 +1,4 @@
-﻿using Matches.Application.Result;
+﻿using Matches.Application.Results;
 using Matches.Domain.Entities;
 using MediatR;
 
@@ -16,4 +16,4 @@ public record CreateMatchCommand(
     string? Group,
     string Stage,
     List<Guid>? HomePlayers,
-    List<Guid>? AwayPlayers) : IRequest<Match>;
+    List<Guid>? AwayPlayers) : IRequest<Result<Match>>;

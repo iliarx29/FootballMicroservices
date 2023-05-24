@@ -1,6 +1,6 @@
 ﻿using Matches.Application.Abstractions;
 using Matches.Application.Matches.Commands.ImportMatches.Models;
-using Matches.Application.Result;
+using Matches.Application.Results;
 using Matches.Domain.Entities;
 using Matches.Domain.Entities.Enums;
 using MediatR;
@@ -43,7 +43,7 @@ public class ImportMatchesCommandHandler : IRequestHandler<ImportMatchesCommand,
 
         var result = await ImportMatches(teamsDict, request.CompetitionId, request.Season);
 
-        return result;
+        return Result<int>.Success(result);
     }
 
     private async Task<int> ImportMatches(Dictionary<string, Guid> teamsDict, Guid competitionId, string season)

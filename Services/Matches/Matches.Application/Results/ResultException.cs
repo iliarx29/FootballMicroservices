@@ -1,4 +1,4 @@
-﻿namespace Matches.Application.Result;
+﻿namespace Matches.Application.Results;
 
 public class ResultException : Exception
 {
