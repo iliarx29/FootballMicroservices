@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using Teams.Domain.Interfaces;
 using Teams.Domain.Models;
+using Teams.Domain.Results;
 
 namespace Teams.API.Controllers;
+
 [Route("api/teams")]
 [ApiController]
 public class TeamsController : ControllerBase
@@ -20,7 +23,7 @@ public class TeamsController : ControllerBase
         var result = await _teamService.GetAllTeamsAsync();
 
         if (!result.IsSuccess)
-            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
+            return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
 
         return Ok(result.Value);
     }
@@ -31,7 +34,12 @@ public class TeamsController : ControllerBase
         var result = await _teamService.GetTeamByIdAsync(id);
 
         if (!result.IsSuccess)
-            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
+        {
+            //return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
+            return new CustomActionResult(HttpStatusCode.NotFound, ErrorCode.NotFound).Convert();
+        };
+
+        //return new CustomActionResult(HttpStatusCode.NotFound, ErrorCode.NotFound);
 
         return Ok(result.Value);
     }
@@ -42,7 +50,7 @@ public class TeamsController : ControllerBase
         var result = await _teamService.AddTeamAsync(teamRequest);
 
         if (!result.IsSuccess)
-            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
+            return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
 
         return CreatedAtAction(nameof(GetTeamById), new { result.Value?.Id }, result.Value);
     }
@@ -53,7 +61,7 @@ public class TeamsController : ControllerBase
         var result = await _teamService.UpdateTeamAsync(id, teamRequest);
 
         if (!result.IsSuccess)
-            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
+            return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
 
         return NoContent();
     }
@@ -63,8 +71,8 @@ public class TeamsController : ControllerBase
     {
         var result = await _teamService.DeleteTeamAsync(id);
 
-        if(!result.IsSuccess)
-            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
+        if (!result.IsSuccess)
+            return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
 
         return NoContent();
     }
@@ -75,7 +83,7 @@ public class TeamsController : ControllerBase
         var result = await _teamService.ImportTeams();
 
         if (!result.IsSuccess)
-            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
+            return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
 
         return Ok(result.Value);
 

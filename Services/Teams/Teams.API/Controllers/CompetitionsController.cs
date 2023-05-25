@@ -20,7 +20,7 @@ public class CompetitionsController : ControllerBase
         var result = await _competitionService.GetAllCompetitionsAsync();
 
         if (!result.IsSuccess)
-            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
+            return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
 
         return Ok(result.Value);
     }
@@ -31,7 +31,7 @@ public class CompetitionsController : ControllerBase
         var result = await _competitionService.GetCompetitionByIdAsync(id);
 
         if (!result.IsSuccess)
-            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
+            return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
 
         return Ok(result.Value);
     }
@@ -42,7 +42,7 @@ public class CompetitionsController : ControllerBase
         var result = await _competitionService.AddCompetitionAsync(competitionRequest);
 
         if (!result.IsSuccess)
-            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
+            return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
 
         return CreatedAtAction(nameof(GetCompetitionById), new { result.Value?.Id }, result.Value);
     }
@@ -53,7 +53,7 @@ public class CompetitionsController : ControllerBase
         var result = await _competitionService.UpdateCompetitionAsync(id, leagueRequest);
 
         if (!result.IsSuccess)
-            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
+            return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
 
         return NoContent();
     }
@@ -64,7 +64,7 @@ public class CompetitionsController : ControllerBase
         var result = await _competitionService.DeleteCompetitionAsync(id);
 
         if (!result.IsSuccess)
-            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
+            return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
 
         return NoContent();
     }
@@ -75,7 +75,7 @@ public class CompetitionsController : ControllerBase
         var result = await _competitionService.GetCompetitionWithTeams(id);
 
         if (!result.IsSuccess)
-            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
+            return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
 
         return Ok(result.Value);
     }
@@ -86,7 +86,7 @@ public class CompetitionsController : ControllerBase
         var result = await _competitionService.AddTeamsToCompetition(id, teamIds);
 
         if (!result.IsSuccess)
-            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
+            return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
 
         return Ok(new { CountOfAddedTeamToCompetition = result.Value });
     }
@@ -97,7 +97,7 @@ public class CompetitionsController : ControllerBase
         var result = await _competitionService.RemoveTeamsFromCompetition(id, teamsIds);
 
         if (!result.IsSuccess)
-            return NotFound(new { result.IsSuccess, result.ErrorMessage, result.ErrorCode });
+            return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
 
         return Ok(new { CountOfRemovedTeamFromCompetition = result.Value });
     }
