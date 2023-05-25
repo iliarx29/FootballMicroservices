@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using Teams.API.Common;
 using Teams.Domain.Interfaces;
 using Teams.Domain.Models;
 
@@ -15,90 +17,90 @@ public class CompetitionsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllCompetitions()
+    public async Task<CustomActionResult<IEnumerable<CompetitionResponse>>> GetAllCompetitions()
     {
         var result = await _competitionService.GetAllCompetitionsAsync();
 
         if (!result.IsSuccess)
-            return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
+            return new CustomActionResult<IEnumerable<CompetitionResponse>>(HttpStatusCode.NotFound, result.ErrorMessage);
 
-        return Ok(result.Value);
+        return new CustomActionResult<IEnumerable<CompetitionResponse>>(HttpStatusCode.OK, result.Value);
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetCompetitionById(Guid id)
+    public async Task<CustomActionResult<CompetitionResponse>> GetCompetitionById(Guid id)
     {
         var result = await _competitionService.GetCompetitionByIdAsync(id);
 
         if (!result.IsSuccess)
-            return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
+            return new CustomActionResult<CompetitionResponse>(HttpStatusCode.NotFound, result.ErrorMessage);
 
-        return Ok(result.Value);
+        return new CustomActionResult<CompetitionResponse>(HttpStatusCode.OK, result.Value);
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddCompetition(CompetitionRequest competitionRequest)
+    public async Task<CustomActionResult<CompetitionResponse>> AddCompetition(CompetitionRequest competitionRequest)
     {
         var result = await _competitionService.AddCompetitionAsync(competitionRequest);
 
         if (!result.IsSuccess)
-            return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
+            return new CustomActionResult<CompetitionResponse>(HttpStatusCode.NotFound, result.ErrorMessage);
 
-        return CreatedAtAction(nameof(GetCompetitionById), new { result.Value?.Id }, result.Value);
+        return new CustomActionResult<CompetitionResponse>(HttpStatusCode.Created, result.Value);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdateCompetition(Guid id, CompetitionRequest leagueRequest)
+    public async Task<CustomActionResult> UpdateCompetition(Guid id, CompetitionRequest leagueRequest)
     {
         var result = await _competitionService.UpdateCompetitionAsync(id, leagueRequest);
 
         if (!result.IsSuccess)
-            return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
+            return new CustomActionResult(HttpStatusCode.NotFound, result.ErrorMessage);
 
-        return NoContent();
+        return new CustomActionResult(HttpStatusCode.NoContent);
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteCompetition(Guid id)
+    public async Task<CustomActionResult> DeleteCompetition(Guid id)
     {
         var result = await _competitionService.DeleteCompetitionAsync(id);
 
         if (!result.IsSuccess)
-            return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
+            return new CustomActionResult(HttpStatusCode.NotFound, result.ErrorMessage);
 
-        return NoContent();
+        return new CustomActionResult(HttpStatusCode.NoContent);
     }
 
     [HttpGet("{id:guid}/teams")]
-    public async Task<IActionResult> GetCompetitionWithTeams(Guid id)
+    public async Task<CustomActionResult<CompetitionResponse>> GetCompetitionWithTeams(Guid id)
     {
         var result = await _competitionService.GetCompetitionWithTeams(id);
 
         if (!result.IsSuccess)
-            return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
+            return new CustomActionResult<CompetitionResponse>(HttpStatusCode.NotFound, result.ErrorMessage);
 
-        return Ok(result.Value);
+        return new CustomActionResult<CompetitionResponse>(HttpStatusCode.OK, result.Value);
     }
 
     [HttpPut("{id:guid}/teams")]
-    public async Task<IActionResult> AddTeamsToCompetition(Guid id, [FromBody] List<Guid> teamIds)
+    public async Task<CustomActionResult<object>> AddTeamsToCompetition(Guid id, [FromBody] List<Guid> teamIds)
     {
         var result = await _competitionService.AddTeamsToCompetition(id, teamIds);
 
         if (!result.IsSuccess)
-            return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
+            return new CustomActionResult<object>(HttpStatusCode.NotFound, result.ErrorMessage);
 
-        return Ok(new { CountOfAddedTeamToCompetition = result.Value });
+        return new CustomActionResult<object>(HttpStatusCode.OK, new { CountOfAddedTeamToCompetition = result.Value });
     }
 
     [HttpDelete("{id:guid}/teams")]
-    public async Task<IActionResult> RemoveTeamsFromCompetition(Guid id, [FromBody] List<Guid> teamsIds)
+    public async Task<CustomActionResult<object>> RemoveTeamsFromCompetition(Guid id, [FromBody] List<Guid> teamsIds)
     {
         var result = await _competitionService.RemoveTeamsFromCompetition(id, teamsIds);
 
         if (!result.IsSuccess)
-            return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
+            return new CustomActionResult<object>(HttpStatusCode.NotFound, result.ErrorMessage);
 
-        return Ok(new { CountOfRemovedTeamFromCompetition = result.Value });
+        return new CustomActionResult<object>(HttpStatusCode.OK, new { CountOfAddedTeamToCompetition = result.Value });
     }
 }

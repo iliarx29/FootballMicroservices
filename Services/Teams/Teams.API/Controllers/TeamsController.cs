@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using Teams.API.Common;
 using Teams.Domain.Interfaces;
 using Teams.Domain.Models;
-using Teams.Domain.Results;
 
 namespace Teams.API.Controllers;
 
@@ -18,74 +18,75 @@ public class TeamsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllTeams()
+    public async Task<CustomActionResult<IEnumerable<TeamResponse>>> GetAllTeams()
     {
         var result = await _teamService.GetAllTeamsAsync();
 
         if (!result.IsSuccess)
-            return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
+            return new CustomActionResult<IEnumerable<TeamResponse>>(HttpStatusCode.NotFound, result.ErrorMessage);
 
-        return Ok(result.Value);
+        return new CustomActionResult<IEnumerable<TeamResponse>>(HttpStatusCode.OK, result.Value);
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetTeamById(Guid id)
+    public async Task<CustomActionResult<TeamResponse>> GetTeamById(Guid id)
     {
         var result = await _teamService.GetTeamByIdAsync(id);
 
         if (!result.IsSuccess)
         {
-            //return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
-            return new CustomActionResult(HttpStatusCode.NotFound, ErrorCode.NotFound).Convert();
+            return new CustomActionResult<TeamResponse>(HttpStatusCode.NotFound, result.ErrorMessage);
         };
 
-        //return new CustomActionResult(HttpStatusCode.NotFound, ErrorCode.NotFound);
-
-        return Ok(result.Value);
+        return new CustomActionResult<TeamResponse>(HttpStatusCode.OK, result.Value);
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddTeam(TeamRequest teamRequest)
+    public async Task<CustomActionResult<TeamResponse>> AddTeam(TeamRequest teamRequest)
     {
         var result = await _teamService.AddTeamAsync(teamRequest);
 
         if (!result.IsSuccess)
-            return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
+        {
+            return new CustomActionResult<TeamResponse>(HttpStatusCode.NotFound, result.ErrorMessage);
+        };
 
-        return CreatedAtAction(nameof(GetTeamById), new { result.Value?.Id }, result.Value);
+        //return CreatedAtAction(nameof(GetTeamById), new { result.Value?.Id }, result.Value);
+
+        return new CustomActionResult<TeamResponse>(HttpStatusCode.Created, result.Value);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdateTeam(Guid id, TeamRequest teamRequest)
+    public async Task<CustomActionResult> UpdateTeam(Guid id, TeamRequest teamRequest)
     {
         var result = await _teamService.UpdateTeamAsync(id, teamRequest);
 
         if (!result.IsSuccess)
-            return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
+            return new CustomActionResult(HttpStatusCode.NotFound, result.ErrorMessage);
 
-        return NoContent();
+        return new CustomActionResult(HttpStatusCode.NoContent);
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteTeam(Guid id)
+    public async Task<CustomActionResult> DeleteTeam(Guid id)
     {
         var result = await _teamService.DeleteTeamAsync(id);
 
         if (!result.IsSuccess)
-            return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
+            return new CustomActionResult(HttpStatusCode.NotFound, result.ErrorMessage);
 
-        return NoContent();
+        return new CustomActionResult(HttpStatusCode.NoContent);
     }
 
     [HttpPost("import")]
-    public async Task<IActionResult> ImportTeams()
+    public async Task<CustomActionResult<object>> ImportTeams()
     {
         var result = await _teamService.ImportTeams();
 
         if (!result.IsSuccess)
-            return NotFound(new ActionResultBody(result.ErrorCode, result.ErrorMessage));
+            return new CustomActionResult<object>(HttpStatusCode.NotFound, result.ErrorMessage);
 
-        return Ok(result.Value);
+        return new CustomActionResult<object>(HttpStatusCode.OK, new {CountOfAddedTeams = result.Value});
 
     }
 }

@@ -1,24 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using System.Net;
-using Teams.Domain.Results;
 
-namespace Teams.API;
+namespace Teams.API.Common;
 
 public class CustomActionResult : IConvertToActionResult
 {
     private ActionResultBody _body;
 
     internal HttpStatusCode HttpStatusCode { get; set; }
-    internal string Description { get; set; }
-    internal Enum Code1 { get; set; }
+    internal string? Message { get; set; }
 
-    public CustomActionResult(HttpStatusCode httpStatusCode, Enum code)
+    public CustomActionResult(HttpStatusCode httpStatusCode, string? message = null)
     {
         HttpStatusCode = httpStatusCode;
-        Code1 = code;
-        Description = code.GetDescription();
-        _body = new ActionResultBody(Code1, Description);
+        Message = message;
+        _body = new ActionResultBody(HttpStatusCode, Message);
     }
 
     public IActionResult Convert()
