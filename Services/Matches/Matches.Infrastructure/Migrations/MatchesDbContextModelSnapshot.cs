@@ -64,23 +64,31 @@ namespace Matches.Infrastructure.Migrations
                     b.Property<Guid>("AwayTeamId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("CompetitionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Group")
+                        .HasColumnType("text");
+
                     b.Property<int?>("HomeGoals")
                         .HasColumnType("integer");
 
                     b.Property<Guid>("HomeTeamId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("LeagueId")
-                        .HasColumnType("uuid");
-
                     b.Property<DateTime?>("MatchDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("Round")
+                    b.Property<int?>("Matchday")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("SeasonId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("Season")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Stage")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -88,7 +96,9 @@ namespace Matches.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SeasonId");
+                    b.HasIndex("AwayTeamId");
+
+                    b.HasIndex("HomeTeamId");
 
                     b.ToTable("Matches");
                 });
@@ -119,47 +129,29 @@ namespace Matches.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<Guid?>("TeamId")
+                        .IsRequired()
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("TeamId");
+
                     b.ToTable("Players");
                 });
 
-            modelBuilder.Entity("Matches.Domain.Entities.Season", b =>
+            modelBuilder.Entity("Matches.Domain.Entities.Team", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime?>("EndDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("LeagueId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("TeamWinnerId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Years")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Seasons");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("6de7e6c5-d265-4cbe-b81b-12b42b5737fb"),
-                            LeagueId = new Guid("6e64b1e4-d662-4c04-8d67-0db65ead9eb7"),
-                            StartDate = new DateTime(2022, 8, 5, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Years = "2022/2023"
-                        });
+                    b.ToTable("Teams");
                 });
 
             modelBuilder.Entity("MatchPlayer", b =>
@@ -194,13 +186,32 @@ namespace Matches.Infrastructure.Migrations
 
             modelBuilder.Entity("Matches.Domain.Entities.Match", b =>
                 {
-                    b.HasOne("Matches.Domain.Entities.Season", "Season")
+                    b.HasOne("Matches.Domain.Entities.Team", "AwayTeam")
                         .WithMany()
-                        .HasForeignKey("SeasonId")
+                        .HasForeignKey("AwayTeamId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Matches.Domain.Entities.Team", "HomeTeam")
+                        .WithMany()
+                        .HasForeignKey("HomeTeamId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("AwayTeam");
+
+                    b.Navigation("HomeTeam");
+                });
+
+            modelBuilder.Entity("Matches.Domain.Entities.Player", b =>
+                {
+                    b.HasOne("Matches.Domain.Entities.Team", "Team")
+                        .WithMany()
+                        .HasForeignKey("TeamId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Season");
+                    b.Navigation("Team");
                 });
 #pragma warning restore 612, 618
         }

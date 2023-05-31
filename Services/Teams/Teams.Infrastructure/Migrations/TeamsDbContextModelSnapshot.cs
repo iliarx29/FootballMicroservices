@@ -22,17 +22,32 @@ namespace Teams.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Teams.Infrastructure.Entities.League", b =>
+            modelBuilder.Entity("CompetitionsTeams", b =>
+                {
+                    b.Property<Guid>("CompetitionsId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TeamsId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("CompetitionsId", "TeamsId");
+
+                    b.HasIndex("TeamsId");
+
+                    b.ToTable("CompetitionsTeams");
+                });
+
+            modelBuilder.Entity("Teams.Infrastructure.Entities.Competition", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Code")
+                    b.Property<string>("Area")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("CountryName")
+                    b.Property<string>("Code")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -40,9 +55,13 @@ namespace Teams.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Leagues");
+                    b.ToTable("Competitions");
                 });
 
             modelBuilder.Entity("Teams.Infrastructure.Entities.Team", b =>
@@ -68,9 +87,6 @@ namespace Teams.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("LeagueId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -81,25 +97,22 @@ namespace Teams.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LeagueId");
-
                     b.ToTable("Teams");
                 });
 
-            modelBuilder.Entity("Teams.Infrastructure.Entities.Team", b =>
+            modelBuilder.Entity("CompetitionsTeams", b =>
                 {
-                    b.HasOne("Teams.Infrastructure.Entities.League", "League")
-                        .WithMany("Teams")
-                        .HasForeignKey("LeagueId")
+                    b.HasOne("Teams.Infrastructure.Entities.Competition", null)
+                        .WithMany()
+                        .HasForeignKey("CompetitionsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("League");
-                });
-
-            modelBuilder.Entity("Teams.Infrastructure.Entities.League", b =>
-                {
-                    b.Navigation("Teams");
+                    b.HasOne("Teams.Infrastructure.Entities.Team", null)
+                        .WithMany()
+                        .HasForeignKey("TeamsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

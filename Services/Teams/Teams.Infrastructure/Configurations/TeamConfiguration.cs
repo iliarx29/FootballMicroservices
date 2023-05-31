@@ -16,9 +16,9 @@ namespace Teams.Infrastructure.Configurations
             builder.Property(t => t.City).IsRequired();
             builder.Property(t => t.Stadium).IsRequired();
 
-            builder.HasOne(t => t.League)
-                .WithMany(l => l.Teams)
-                .HasForeignKey(t => t.LeagueId);
+            builder.HasMany(t => t.Competitions)
+                .WithMany(c => c.Teams)
+                .UsingEntity("CompetitionsTeams");
         }
     }
 }

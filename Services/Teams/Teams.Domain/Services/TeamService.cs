@@ -5,7 +5,7 @@ using OfficeOpenXml;
 using Teams.Domain.Exceptions;
 using Teams.Domain.Interfaces;
 using Teams.Domain.Models;
-using Teams.Domain.Validation;
+using Teams.Domain.Results;
 using Teams.Infrastructure;
 using Teams.Infrastructure.Entities;
 
@@ -23,28 +23,28 @@ public class TeamService : ITeamService
         _validator = validator;
     }
 
-    public async Task<IEnumerable<TeamResponse>> GetAllTeamsAsync()
+    public async Task<Result<IEnumerable<TeamResponse>>> GetAllTeamsAsync()
     {
         var teams = await _context.Teams.AsNoTracking().ToListAsync();
 
         var teamsResponse = _mapper.Map<List<TeamResponse>>(teams);
 
-        return teamsResponse;
+        return Result<IEnumerable<TeamResponse>>.Success(teamsResponse);
     }
 
-    public async Task<TeamResponse> GetTeamByIdAsync(Guid id)
+    public async Task<Result<TeamResponse>> GetTeamByIdAsync(Guid id)
     {
         var team = await _context.Teams.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
 
         if (team is null)
-            throw new NotFoundException($"Team with id: '{id}' doesn't exists.");
+            return Result<TeamResponse>.Error(ErrorCode.NotFound, $"Team with id: '{id}' doesn't exists.");
 
         var teamResponse = _mapper.Map<TeamResponse>(team);
 
-        return teamResponse;
+        return Result<TeamResponse>.Success(teamResponse);
     }
 
-    public async Task<TeamResponse> AddTeamAsync(TeamRequest teamRequest)
+    public async Task<Result<TeamResponse>> AddTeamAsync(TeamRequest teamRequest)
     {
         _validator.ValidateAndThrow(teamRequest);
 
@@ -55,17 +55,17 @@ public class TeamService : ITeamService
 
         var teamResponse = _mapper.Map<TeamResponse>(team);
 
-        return teamResponse;
+        return Result<TeamResponse>.Success(teamResponse);
     }
 
-    public async Task UpdateTeamAsync(Guid id, TeamRequest teamRequest)
+    public async Task<Result> UpdateTeamAsync(Guid id, TeamRequest teamRequest)
     {
         _validator.ValidateAndThrow(teamRequest);
 
         var team = await _context.Teams.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         if (team is null)
         {
-            throw new NotFoundException($"Team with given id:'{id}' doesn't exist.");
+            return Result.Error(ErrorCode.NotFound, $"Team with given id:'{id}' doesn't exist.");
         }
 
         team = _mapper.Map<Team>(teamRequest);
@@ -73,34 +73,40 @@ public class TeamService : ITeamService
 
         _context.Teams.Update(team);
         await _context.SaveChangesAsync();
+
+        return Result.Success();
     }
 
-    public async Task DeleteTeamAsync(Guid id)
+    public async Task<Result> DeleteTeamAsync(Guid id)
     {
         var team = await _context.Teams.FirstOrDefaultAsync(x => x.Id == id);
         if (team is null)
         {
-            throw new NotFoundException($"Team with given id:'{id}' doesn't exist.");
+            return Result.Error(ErrorCode.NotFound, $"Team with given id:'{id}' doesn't exist.");
         }
 
         _context.Teams.Remove(team);
         await _context.SaveChangesAsync();
+
+        return Result.Success();
     }
 
-    public async Task<int> ImportTeams()
+    public async Task<Result<int>> ImportTeams()
     {
         var path = @"C:\Users\Ilya\Desktop\Teams.xlsx";
 
-        using var stream = System.IO.File.OpenRead(path);
+        using var stream = File.OpenRead(path);
         using var excelPackage = new ExcelPackage(stream);
 
         var worksheet = excelPackage.Workbook.Worksheets[0];
         var nEndRow = worksheet.Dimension.End.Row;
 
+        var teamsCount = await _context.Teams.CountAsync();
+
         var numbOfMatchesAdded = 0;
         List<Team> teams = new();
 
-        for (int nRow = 2; nRow <= nEndRow; nRow++)
+        for (int nRow = teamsCount + 2; nRow <= nEndRow; nRow++)
         {
             var row = worksheet.Cells[nRow, 1, nRow, worksheet.Dimension.End.Column];
 
@@ -110,8 +116,7 @@ public class TeamService : ITeamService
             var city = row[nRow, 4].GetValue<string>();
             var emblem = row[nRow, 5].GetValue<string>();
             var stadium = row[nRow, 6].GetValue<string>();
-            var leagueId = row[nRow, 7].GetValue<string>();
-            
+
             var team = new Team
             {
                 Name = name,
@@ -120,7 +125,6 @@ public class TeamService : ITeamService
                 City = city,
                 Emblem = "",
                 Stadium = stadium,
-                LeagueId = new Guid(leagueId),
             };
 
             teams.Add(team);
@@ -131,6 +135,6 @@ public class TeamService : ITeamService
 
         await _context.SaveChangesAsync();
 
-        return numbOfMatchesAdded;
+        return Result<int>.Success(numbOfMatchesAdded);
     }
 }

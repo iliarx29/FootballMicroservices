@@ -10,7 +10,7 @@ public class MappingProfile : Profile
     {
         CreateMap<TeamResponse, Team>().ReverseMap();
         CreateMap<TeamRequest, Team>().ReverseMap();
-        CreateMap<LeagueResponse, League>().ReverseMap();
-        CreateMap<LeagueRequest, League>().ReverseMap();
+        CreateMap<CompetitionResponse, Competition>().ReverseMap();
+        CreateMap<CompetitionRequest, Competition>().ReverseMap();
     }
 }

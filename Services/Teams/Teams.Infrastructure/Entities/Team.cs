@@ -9,6 +9,5 @@ public class Team
     public string City { get; set; } = string.Empty;
     public string Emblem { get; set; } = string.Empty;
     public string Stadium { get; set; } = string.Empty;
-    public Guid LeagueId { get; set; }
-    public League? League { get; set; }
+    public List<Competition> Competitions { get; set; } = new();
 }

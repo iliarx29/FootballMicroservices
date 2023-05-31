@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using Teams.API.Common;
 using Teams.Domain.Interfaces;
 using Teams.Domain.Models;
 
 namespace Teams.API.Controllers;
+
 [Route("api/teams")]
 [ApiController]
 public class TeamsController : ControllerBase
@@ -15,51 +18,75 @@ public class TeamsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllTeams()
+    public async Task<CustomActionResult<IEnumerable<TeamResponse>>> GetAllTeams()
     {
-        var teams = await _teamService.GetAllTeamsAsync();
+        var result = await _teamService.GetAllTeamsAsync();
 
-        return Ok(teams);
+        if (!result.IsSuccess)
+            return new CustomActionResult<IEnumerable<TeamResponse>>(HttpStatusCode.NotFound, result.ErrorMessage);
+
+        return new CustomActionResult<IEnumerable<TeamResponse>>(HttpStatusCode.OK, result.Value);
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetTeamById(Guid id)
+    public async Task<CustomActionResult<TeamResponse>> GetTeamById(Guid id)
     {
-        var team = await _teamService.GetTeamByIdAsync(id);
+        var result = await _teamService.GetTeamByIdAsync(id);
 
-        return Ok(team);
+        if (!result.IsSuccess)
+        {
+            return new CustomActionResult<TeamResponse>(HttpStatusCode.NotFound, result.ErrorMessage);
+        };
+
+        return new CustomActionResult<TeamResponse>(HttpStatusCode.OK, result.Value);
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddTeam(TeamRequest teamRequest)
+    public async Task<CustomActionResult<TeamResponse>> AddTeam(TeamRequest teamRequest)
     {
-        var teamResponse = await _teamService.AddTeamAsync(teamRequest);
+        var result = await _teamService.AddTeamAsync(teamRequest);
 
-        return CreatedAtAction(nameof(GetTeamById), new { teamResponse.Id}, teamResponse);
+        if (!result.IsSuccess)
+        {
+            return new CustomActionResult<TeamResponse>(HttpStatusCode.NotFound, result.ErrorMessage);
+        };
+
+        //return CreatedAtAction(nameof(GetTeamById), new { result.Value?.Id }, result.Value);
+
+        return new CustomActionResult<TeamResponse>(HttpStatusCode.Created, result.Value);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdateTeam(Guid id, TeamRequest teamRequest)
+    public async Task<CustomActionResult> UpdateTeam(Guid id, TeamRequest teamRequest)
     {
-        await _teamService.UpdateTeamAsync(id, teamRequest);
+        var result = await _teamService.UpdateTeamAsync(id, teamRequest);
 
-        return NoContent();
+        if (!result.IsSuccess)
+            return new CustomActionResult(HttpStatusCode.NotFound, result.ErrorMessage);
+
+        return new CustomActionResult(HttpStatusCode.NoContent);
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteTeam(Guid id)
+    public async Task<CustomActionResult> DeleteTeam(Guid id)
     {
-        await _teamService.DeleteTeamAsync(id);
+        var result = await _teamService.DeleteTeamAsync(id);
 
-        return NoContent();
+        if (!result.IsSuccess)
+            return new CustomActionResult(HttpStatusCode.NotFound, result.ErrorMessage);
+
+        return new CustomActionResult(HttpStatusCode.NoContent);
     }
 
     [HttpPost("import")]
-    public async Task<IActionResult> ImportTeams()
+    public async Task<CustomActionResult<object>> ImportTeams()
     {
         var result = await _teamService.ImportTeams();
 
-        return Ok(result);
+        if (!result.IsSuccess)
+            return new CustomActionResult<object>(HttpStatusCode.NotFound, result.ErrorMessage);
+
+        return new CustomActionResult<object>(HttpStatusCode.OK, new {CountOfAddedTeams = result.Value});
 
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Gateway.API;
+﻿namespace Gateway.API.Dtos;
 
 public class LeagueDto
 {
@@ -6,5 +6,5 @@ public class LeagueDto
     public string Name { get; set; } = string.Empty;
     public Guid CountryId { get; set; }
     public string Code { get; set; } = string.Empty;
-    public List<TeamDto>? Teams {  get; set; } 
+    public List<TeamDto>? Teams { get; set; }
 }

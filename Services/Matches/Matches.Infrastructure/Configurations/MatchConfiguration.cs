@@ -10,15 +10,30 @@ public class MatchConfiguration : IEntityTypeConfiguration<Match>
         builder.HasKey(m => m.Id);
         builder.Property(m => m.HomeTeamId).IsRequired();
         builder.Property(m => m.AwayTeamId).IsRequired();
-        builder.Property(m => m.LeagueId).IsRequired();
-        builder.Property(m => m.SeasonId).IsRequired();
-        builder.Property(m => m.Round).IsRequired();
-
-        builder.HasOne(m => m.Season)
-            .WithMany()
-            .HasForeignKey(m => m.SeasonId);
+        builder.Property(m => m.CompetitionId).IsRequired();
+        builder.Property(m => m.Status).IsRequired();
+        builder.Property(m => m.Stage).IsRequired();
+        builder.Property(m => m.Season).IsRequired();
 
         builder.Property(m => m.Status)
             .HasConversion<string>();
+
+        builder.Property(m => m.Stage)
+            .HasConversion<string>();
+
+        builder.Property(m => m.Group)
+            .HasConversion<string>();
+
+        builder
+            .HasOne(m => m.HomeTeam)
+            .WithMany()
+            .HasForeignKey(m => m.HomeTeamId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder
+            .HasOne(m => m.AwayTeam)
+            .WithMany()
+            .HasForeignKey(m => m.AwayTeamId)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

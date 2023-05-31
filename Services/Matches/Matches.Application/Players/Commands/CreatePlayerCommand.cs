@@ -1,8 +1,9 @@
 ﻿using FluentValidation;
 using Matches.Application.Abstractions;
+using Matches.Application.Results;
 using Matches.Domain.Entities;
+using Matches.Domain.Entities.Enums;
 using MediatR;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Matches.Application.Players.Commands;
 public record CreatePlayerCommand(
@@ -11,9 +12,9 @@ public record CreatePlayerCommand(
     Guid? TeamId,
     int? ShirtNumber,
     DateTime? DateOfBirth,
-    string Position) : IRequest<Player>;
+    string Position) : IRequest<Result<Player>>;
 
-public class CreatePlayerCommandHandler : IRequestHandler<CreatePlayerCommand, Player>
+public class CreatePlayerCommandHandler : IRequestHandler<CreatePlayerCommand, Result<Player>>
 {
     private readonly IMatchesDbContext _context;
 
@@ -22,7 +23,7 @@ public class CreatePlayerCommandHandler : IRequestHandler<CreatePlayerCommand, P
         _context = context;
     }
 
-    public async Task<Player> Handle(CreatePlayerCommand command, CancellationToken cancellationToken)
+    public async Task<Result<Player>> Handle(CreatePlayerCommand command, CancellationToken cancellationToken)
     {
         var player = new Player()
         {
@@ -37,7 +38,7 @@ public class CreatePlayerCommandHandler : IRequestHandler<CreatePlayerCommand, P
         await _context.Players.AddAsync(player, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return player;
+        return Result<Player>.Success(player);
     }
 }
 
@@ -47,7 +48,6 @@ public class CreatePlayerCommandValidator : AbstractValidator<CreatePlayerComman
     {
         RuleFor(x => x.Name).NotNull().NotEmpty();
         RuleFor(x => x.CountryName).NotNull().NotEmpty();
-        RuleFor(x => x.DateOfBirth).NotNull().NotEmpty();
         RuleFor(x => x.Position).IsEnumName(typeof(Position));
     }
 }

@@ -1,6 +1,6 @@
-using System.Reflection;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 using Teams.Domain.Interfaces;
 using Teams.Domain.Services;
 
@@ -13,7 +13,7 @@ public static class DependencyInjection
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
         services.AddScoped<ITeamService, TeamService>()
-                .AddScoped<ILeagueService, LeagueService>();
+                .AddScoped<ICompetitionService, CompetitionService>();
 
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
 

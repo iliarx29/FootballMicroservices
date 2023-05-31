@@ -46,5 +46,4 @@ public class ResultBase
 
         return ErrorCode.GetDescription();
     }
-
 }

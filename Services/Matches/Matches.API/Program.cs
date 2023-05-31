@@ -1,3 +1,4 @@
+using Hangfire;
 using Matches.API.Middlewares;
 using Matches.Application;
 using Matches.Infrastructure;
@@ -9,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services
-    .AddApplication()
+    .AddApplication(builder.Configuration)
     .AddInsfrastructure(builder.Configuration);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -34,6 +35,8 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseCors(builder => builder.AllowAnyOrigin());
 
 app.UseAuthorization();
+
+app.UseHangfireDashboard();
 
 app.MapControllers();
 

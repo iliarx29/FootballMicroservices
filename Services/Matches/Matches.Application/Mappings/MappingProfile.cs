@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Matches.Application.Matches.Queries.GetStandingsByLeagueId;
+using Matches.Application.Matches.Queries.GetStandingsByCompetitionAndSeason;
 using Matches.Domain.Entities;
 
 namespace Matches.Application.Mappings;
