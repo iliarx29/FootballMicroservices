@@ -4,7 +4,6 @@ using Matches.Domain.Entities;
 using Matches.Domain.Entities.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Matches.Application.Matches.Queries.GetH2HMatches;
 public class GetH2HMatchesQueryHandler : IRequestHandler<GetH2HMatchesQuery, Result<IEnumerable<Match>>>

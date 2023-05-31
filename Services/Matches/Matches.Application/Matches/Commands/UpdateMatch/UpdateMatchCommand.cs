@@ -14,4 +14,4 @@ public record UpdateMatchCommand(
     string Status,
     string Stage,
     string? Group,
-    int? Matchday) : IRequest;
+    int? Matchday) : IRequest<Result>;

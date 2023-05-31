@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using Teams.API.Common;
 using Teams.Domain.Interfaces;
 using Teams.Domain.Models;
 
 namespace Teams.API.Controllers;
+
 [Route("api/teams")]
 [ApiController]
 public class TeamsController : ControllerBase
@@ -22,7 +25,7 @@ public class TeamsController : ControllerBase
 
         if (!result.IsSuccess)
             return new CustomActionResult<IEnumerable<TeamResponse>>(HttpStatusCode.NotFound, result.ErrorMessage);
-
+            
         return new CustomActionResult<IEnumerable<TeamResponse>>(HttpStatusCode.OK, result.Value);
     }
 
@@ -62,7 +65,7 @@ public class TeamsController : ControllerBase
 
         if (!result.IsSuccess)
             return new CustomActionResult(HttpStatusCode.NotFound, result.ErrorMessage);
-
+            
         return new CustomActionResult(HttpStatusCode.NoContent);
     }
 

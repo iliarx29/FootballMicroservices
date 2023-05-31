@@ -1,4 +1,4 @@
-using Gateway.API;
+using Gateway.API.Aggregators;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 

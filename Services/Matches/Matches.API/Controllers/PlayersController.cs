@@ -1,13 +1,11 @@
 ﻿using Matches.API.Common;
 using Matches.Application.Players.Commands;
 using Matches.Application.Players.Queries;
-using Matches.Application.Result;
+using Matches.Application.Results;
 using Matches.Domain.Entities;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using System.Numerics;
 
 namespace Matches.API.Controllers;
 [Route("api/[controller]")]

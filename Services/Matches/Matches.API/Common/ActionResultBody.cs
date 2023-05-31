@@ -1,4 +1,4 @@
-﻿using Matches.Application.Result;
+﻿using Matches.Application.Results;
 
 namespace Matches.API.Common;
 

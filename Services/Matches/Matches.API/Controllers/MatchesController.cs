@@ -1,4 +1,5 @@
 ﻿using Hangfire;
+using Matches.API.Common;
 using Matches.Application;
 using Matches.Application.Matches.Commands.CreateMatch;
 using Matches.Application.Matches.Commands.DeleteMatch;
@@ -8,8 +9,8 @@ using Matches.Application.Matches.Queries.GetH2HMatches;
 using Matches.Application.Matches.Queries.GetMatchById;
 using Matches.Application.Matches.Queries.GetMatches;
 using Matches.Application.Matches.Queries.GetMatchesByCompetitionId;
-using Matches.Application.Matches.Queries.GetStandingsByLeagueAndSeason;
-using Matches.Application.Result;
+using Matches.Application.Matches.Queries.GetStandingsByCompetitionAndSeason;
+using Matches.Application.Results;
 using Matches.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -24,9 +25,9 @@ public class MatchesController : ControllerBase
 {
     private readonly IMediator _mediator;
     private readonly IRecurringJobManager _recurringJobManager;
-    private readonly ImportDataReccuringJob _importJob;
+    private readonly ImportDataRecurringJob _importJob;
 
-    public MatchesController(IMediator context, IRecurringJobManager recurringJobManager, ImportDataReccuringJob importJob)
+    public MatchesController(IMediator context, IRecurringJobManager recurringJobManager, ImportDataRecurringJob importJob)
     {
         _mediator = context;
         _recurringJobManager = recurringJobManager;
@@ -134,6 +135,7 @@ public class MatchesController : ControllerBase
 
         return new CustomActionResult(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail(ErrorCode.NotFound, result.ErrorMessage);
     }
+
 
     [Authorize]
     [HttpPost("competitions/{competitionId:guid}/jobImport")]

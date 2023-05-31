@@ -1,10 +1,10 @@
-﻿using Hangfire;
+﻿using FluentValidation;
+using Hangfire;
 using Hangfire.PostgreSql;
-using Microsoft.Extensions.Configuration;
-using FluentValidation;
 using Matches.Application.Behaviors;
 using Matches.Application.Mappings;
 using MediatR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Matches.Application;
@@ -29,7 +29,7 @@ public static class DependencyInjection
 
         services.AddHangfireServer();
 
-        services.AddScoped<ImportDataReccuringJob>();
+        services.AddScoped<ImportDataRecurringJob>();
 
         return services;
     }

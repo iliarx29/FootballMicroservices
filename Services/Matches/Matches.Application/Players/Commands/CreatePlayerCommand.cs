@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using Matches.Application.Abstractions;
-using Matches.Application.Result;
+using Matches.Application.Results;
 using Matches.Domain.Entities;
 using Matches.Domain.Entities.Enums;
 using MediatR;
@@ -48,7 +48,6 @@ public class CreatePlayerCommandValidator : AbstractValidator<CreatePlayerComman
     {
         RuleFor(x => x.Name).NotNull().NotEmpty();
         RuleFor(x => x.CountryName).NotNull().NotEmpty();
-        RuleFor(x => x.DateOfBirth).NotNull().NotEmpty();
         RuleFor(x => x.Position).IsEnumName(typeof(Position));
     }
 }

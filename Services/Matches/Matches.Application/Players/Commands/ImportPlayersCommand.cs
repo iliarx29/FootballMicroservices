@@ -1,11 +1,10 @@
 ﻿using Matches.Application.Abstractions;
-using Matches.Application.Result;
+using Matches.Application.Results;
 using Matches.Domain.Entities;
+using Matches.Domain.Entities.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
-using System.Net.Http.Json;
-using Matches.Application.Matches.Commands.ImportMatches.Models;
 
 namespace Matches.Application.Players.Commands;
 public record ImportPlayersCommand() : IRequest<Result<int>>;
@@ -13,22 +12,14 @@ public record ImportPlayersCommand() : IRequest<Result<int>>;
 public class ImportPlayersCommandHandler : IRequestHandler<ImportPlayersCommand, Result<int>>
 {
     private readonly IMatchesDbContext _context;
-    private readonly IHttpClientFactory _client;
-    public ImportPlayersCommandHandler(IMatchesDbContext context, IHttpClientFactory httpClientFactory)
+    public ImportPlayersCommandHandler(IMatchesDbContext context)
     {
         _context = context;
-        _client = httpClientFactory;
     }
 
     public async Task<Result<int>> Handle(ImportPlayersCommand request, CancellationToken cancellationToken)
     {
-        var httpClient = _client.CreateClient();
-        var url = $"https://localhost:7057/api/teams";
-
-        var teams = await httpClient.GetFromJsonAsync<List<TeamResponse>>(url);
-
-        if (teams is null)
-            return Result<int>.Error(ErrorCode.NotFound, $"There are no teams.");
+        var teams = await _context.Teams.ToListAsync(cancellationToken);
 
         var teamsDict = new Dictionary<string, Guid>();
 
@@ -45,12 +36,12 @@ public class ImportPlayersCommandHandler : IRequestHandler<ImportPlayersCommand,
         var worksheet = excelPackage.Workbook.Worksheets[0];
         var nEndRow = worksheet.Dimension.End.Row;
 
-        var playersCount = await _context.Players.CountAsync();
+        var playersCount = await _context.Players.CountAsync(cancellationToken);
 
         var numbOfPlayersAdded = 0;
         List<Player> players = new();
 
-        for (int nRow = nEndRow - playersCount + 2; nRow <= nEndRow; nRow++)
+        for (int nRow = playersCount + 2; nRow <= nEndRow; nRow++)
         {
             var row = worksheet.Cells[nRow, 1, nRow, worksheet.Dimension.End.Column];
 
@@ -68,6 +59,7 @@ public class ImportPlayersCommandHandler : IRequestHandler<ImportPlayersCommand,
                 Name = name,
                 CountryName = country,
                 ShirtNumber = shirtNumber,
+                DateOfBirth = DateTime.SpecifyKind(new DateTime(), DateTimeKind.Utc),
                 Position = Enum.Parse<Position>(position)
             };
 
@@ -75,9 +67,9 @@ public class ImportPlayersCommandHandler : IRequestHandler<ImportPlayersCommand,
             numbOfPlayersAdded++;
         }
 
-        await _context.Players.AddRangeAsync(players);
+        await _context.Players.AddRangeAsync(players, cancellationToken);
 
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
 
         return Result<int>.Success(numbOfPlayersAdded);
     }

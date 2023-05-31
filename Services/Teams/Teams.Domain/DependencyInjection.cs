@@ -1,6 +1,6 @@
-using System.Reflection;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 using Teams.Domain.Interfaces;
 using Teams.Domain.Services;
 

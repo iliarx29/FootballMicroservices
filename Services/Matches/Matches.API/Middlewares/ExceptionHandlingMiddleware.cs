@@ -20,13 +20,13 @@ public class ExceptionHandlingMiddleware
         {
             await _next(context);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             await HandleException(context, ex);
         }
     }
 
-    private Task HandleException(HttpContext context, Exception ex)
+    private static Task HandleException(HttpContext context, Exception ex)
     {
         var code = ex switch
         {

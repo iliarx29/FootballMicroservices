@@ -1,7 +1,6 @@
 ﻿using Matches.Application.Abstractions;
 using Matches.Application.Results;
 using Matches.Domain.Entities;
-using Matches.Domain.Exceptions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,21 +19,22 @@ public class GetMatchByIdQueryHandler : IRequestHandler<GetMatchByIdQuery, Resul
         var match = await _context.Matches
             .Select(x => new Match
             {
-                Id = x.Id, 
-                HomeTeamId = x.HomeTeamId, 
-                HomeGoals = x.HomeGoals, 
-                AwayGoals = x.AwayGoals, 
-                AwayTeamId = x.AwayTeamId, 
+                Id = x.Id,
+                HomeTeamId = x.HomeTeamId,
+                HomeGoals = x.HomeGoals,
+                AwayGoals = x.AwayGoals,
+                AwayTeamId = x.AwayTeamId,
                 MatchDate = x.MatchDate,
-                Status = x.Status, 
+                Status = x.Status,
                 Matchday = x.Matchday,
-                CompetitionId = x.CompetitionId, 
+                CompetitionId = x.CompetitionId,
                 Season = x.Season,
                 Stage = x.Stage,
                 Group = x.Group,
                 HomePlayers = x.HomePlayers.Select(x => new Player { Id = x.Id, Name = x.Name }).ToList(),
                 AwayPlayers = x.AwayPlayers.Select(x => new Player { Id = x.Id, Name = x.Name }).ToList()
             })
+            
             .FirstOrDefaultAsync(x => x.Id == query.Id, cancellationToken);
 
         if (match is null)
