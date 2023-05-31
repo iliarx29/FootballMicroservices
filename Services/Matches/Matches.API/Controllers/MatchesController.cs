@@ -12,6 +12,7 @@ using Matches.Application.Matches.Queries.GetStandingsByLeagueAndSeason;
 using Matches.Application.Result;
 using Matches.Domain.Entities;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -76,6 +77,7 @@ public class MatchesController : ControllerBase
         return new CustomActionResult<Match>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail<Match>(ErrorCode.NotFound, matches.ErrorMessage);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<CustomActionResult> AddMatch(CreateMatchCommand command)
     {
@@ -87,10 +89,10 @@ public class MatchesController : ControllerBase
         return new CustomActionResult<Match>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail<Match>(ErrorCode.NotFound, match.ErrorMessage);
     }
 
-    [HttpGet("leagues/{leagueId:guid}/standings")]
-    public async Task<CustomActionResult> GetStandingsByLeagueId(Guid leagueId, [FromQuery] Guid seasonId)
+    [HttpGet("competition/{competitionId:guid}/standings")]
+    public async Task<CustomActionResult> GetStandingsByLeagueId(Guid competitionId, [FromQuery] string season)
     {
-        var standings = await _mediator.Send(new GetStandingsByLeagueAndSeasonQuery(leagueId, season));
+        var standings = await _mediator.Send(new GetStandingsByCompetitionAndSeasonQuery(competitionId, season));
 
         if (standings.IsSuccess)
             return new CustomActionResult<IEnumerable<Ranking>>(HttpStatusCode.OK, ErrorCode.OK).Success<IEnumerable<Ranking>>(standings.Value);
@@ -98,34 +100,46 @@ public class MatchesController : ControllerBase
         return new CustomActionResult<IEnumerable<Ranking>>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail<Ranking>(ErrorCode.NotFound, standings.ErrorMessage);
     }
 
+    [Authorize]
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteMatch(Guid id)
+    public async Task<CustomActionResult> DeleteMatch(Guid id)
     {
-        await _mediator.Send(new DeleteMatchCommand(id));
+        var result = await _mediator.Send(new DeleteMatchCommand(id));
 
-        return NoContent();
+        if (result.IsSuccess)
+            return new CustomActionResult(HttpStatusCode.OK, ErrorCode.OK).Success();
+
+        return new CustomActionResult(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail(ErrorCode.NotFound, result.ErrorMessage);
     }
 
     [HttpPost("competitions/{competitionId:guid}/import")]
-    public async Task<IActionResult> ImportMatches(Guid competitionId, [FromQuery] string season)
+    public async Task<CustomActionResult> ImportMatches(Guid competitionId, [FromQuery] string season)
     {
         var result = await _mediator.Send(new ImportMatchesCommand(competitionId, season));
 
-        return Ok(new { CountOfMatches = result });
+        if (result.IsSuccess)
+            return new CustomActionResult<int>(HttpStatusCode.OK, ErrorCode.OK).Success<int>(result.Value);
+
+        return new CustomActionResult<int>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail(ErrorCode.NotFound, result.ErrorMessage);
     }
 
+    [Authorize]
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdateMatch(UpdateMatchCommand command)
+    public async Task<CustomActionResult> UpdateMatch(UpdateMatchCommand command)
     {
-        await _mediator.Send(command);
+        var result = await _mediator.Send(command);
 
-        return NoContent();
+        if (result.IsSuccess)
+            return new CustomActionResult(HttpStatusCode.OK, ErrorCode.OK).Success();
+
+        return new CustomActionResult(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail(ErrorCode.NotFound, result.ErrorMessage);
     }
 
-    [HttpPost("competitions/{leagueId:guid}/jobImport")]
-    public IActionResult ImportJob(Guid leagueId, [FromQuery] string season)
+    [Authorize]
+    [HttpPost("competitions/{competitionId:guid}/jobImport")]
+    public IActionResult ImportJob(Guid competitionId, [FromQuery] string season)
     {
-        _recurringJobManager.AddOrUpdate("importJob", () =>  _importJob.Handle(leagueId, season), Cron.Daily(19));
+        _recurringJobManager.AddOrUpdate("importJob", () => _importJob.ImportMatches(competitionId, season), Cron.Daily(19));
         return NoContent();
     }
 }

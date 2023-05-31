@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+using Teams.API;
 using Teams.API.Middlewares;
 using Teams.Domain;
 using Teams.Infrastructure;
@@ -11,9 +11,11 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<TeamsDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddDomain();
+builder.Services
+    .AddApi(builder.Configuration)
+    .AddDomain()
+    .AddInsfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
@@ -28,6 +30,7 @@ app.UseHttpsRedirection();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
