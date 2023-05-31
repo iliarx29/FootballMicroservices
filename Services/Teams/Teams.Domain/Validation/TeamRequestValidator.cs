@@ -11,6 +11,5 @@ public class TeamRequestValidator : AbstractValidator<TeamRequest>
         RuleFor(x => x.Code).NotNull().NotEmpty().Length(3);
         RuleFor(x => x.City).NotNull().NotEmpty();
         RuleFor(x => x.CountryName).NotNull().NotEmpty();
-        RuleFor(x => x.LeagueId).NotNull().NotEmpty();
     }
 }

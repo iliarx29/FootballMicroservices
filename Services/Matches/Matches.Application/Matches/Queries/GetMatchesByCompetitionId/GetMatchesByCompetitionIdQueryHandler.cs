@@ -1,10 +1,11 @@
 ﻿using Matches.Application.Abstractions;
+using Matches.Application.Results;
 using Matches.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Matches.Application.Matches.Queries.GetMatchesByCompetitionId;
-public class GetMatchesByCompetitionIdQueryHandler : IRequestHandler<GetMatchesByCompetitionIdQuery, IEnumerable<Match>>
+public class GetMatchesByCompetitionIdQueryHandler : IRequestHandler<GetMatchesByCompetitionIdQuery, Result<IEnumerable<Match>>>
 {
     private readonly IMatchesDbContext _context;
 
@@ -13,16 +14,10 @@ public class GetMatchesByCompetitionIdQueryHandler : IRequestHandler<GetMatchesB
         _context = context;
     }
 
-    public async Task<IEnumerable<Match>> Handle(GetMatchesByCompetitionIdQuery query, CancellationToken cancellationToken)
+    public async Task<Result<IEnumerable<Match>>> Handle(GetMatchesByCompetitionIdQuery query, CancellationToken cancellationToken)
     {
-        var matches = await _context.Matches
-            .AsNoTracking()
-            .Where(x => x.CompetitionId == query.CompetitionId)
-            .ToListAsync(cancellationToken);
+        var matches = await _context.Matches.AsNoTracking().Where(x => x.CompetitionId == query.LeagueId).ToListAsync(cancellationToken);
 
-        if (matches is null)
-            throw new ArgumentNullException(nameof(matches), "Matches is null");
-
-        return matches;
+        return Result<IEnumerable<Match>>.Success(matches);
     }
 }

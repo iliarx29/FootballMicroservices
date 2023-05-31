@@ -1,4 +1,4 @@
-﻿namespace Gateway.API;
+﻿namespace Gateway.API.Dtos;
 
 public class TeamDto
 {

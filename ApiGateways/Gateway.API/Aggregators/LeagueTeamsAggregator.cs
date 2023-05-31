@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Gateway.API.Dtos;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Ocelot.Middleware;
@@ -6,7 +6,7 @@ using Ocelot.Multiplexer;
 using System.Net;
 using System.Net.Http.Headers;
 
-namespace Gateway.API;
+namespace Gateway.API.Aggregators;
 
 public class LeagueTeamsAggregator : IDefinedAggregator
 {

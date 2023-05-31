@@ -1,42 +1,28 @@
 ﻿using Matches.Application.Abstractions;
-using Matches.Application.Matches.Commands.ImportMatches.Models;
 using Matches.Application.Results;
 using Matches.Domain.Entities;
 using Matches.Domain.Entities.Enums;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
-using System.Net.Http.Json;
 
 namespace Matches.Application.Matches.Commands.ImportMatches;
 public class ImportMatchesCommandHandler : IRequestHandler<ImportMatchesCommand, Result<int>>
 {
-    private readonly IHttpClientFactory _client;
     private readonly IMatchesDbContext _context;
 
-    public ImportMatchesCommandHandler(IHttpClientFactory client, IMatchesDbContext context)
+    public ImportMatchesCommandHandler(IMatchesDbContext context)
     {
-        _client = client;
         _context = context;
     }
 
     public async Task<Result<int>> Handle(ImportMatchesCommand request, CancellationToken cancellationToken)
     {
-        //await _context.Matches.ExecuteDeleteAsync();
-
-        var httpClient = _client.CreateClient();
-        var url = $"https://localhost:7057/api/competitions/{request.CompetitionId}/teams";
-
-        var response = await httpClient.GetFromJsonAsync<CompetitionResponse>(url);
-
-        if (response is null)
-            return Result<int>.Error(ErrorCode.NotFound, $"League with id: '{command.LeagueId}' not found");
-
-        if (response.Teams is null)
-            return Result<int>.Error(ErrorCode.NotFound, $"There are no teams in league with id '{command.LeagueId}'.");
+        var teams = await _context.Teams.ToListAsync(cancellationToken);
 
         var teamsDict = new Dictionary<string, Guid>();
 
-        foreach (var item in response.Teams)
+        foreach (var item in teams)
         {
             teamsDict.Add(item.Name, item.Id);
         }
@@ -50,16 +36,18 @@ public class ImportMatchesCommandHandler : IRequestHandler<ImportMatchesCommand,
     {
         var path = @"C:\Users\Ilya\Desktop\matches.xlsx";
 
-        using var stream = System.IO.File.OpenRead(path);
+        using var stream = File.OpenRead(path);
         using var excelPackage = new ExcelPackage(stream);
 
         var worksheet = excelPackage.Workbook.Worksheets[0];
         var nEndRow = worksheet.Dimension.End.Row;
 
+        var matchesCount = await _context.Matches.CountAsync(x => x.CompetitionId == competitionId);
+
         var numbOfMatchesAdded = 0;
         List<Match> matches = new();
 
-        for (int nRow = 2; nRow <= nEndRow; nRow++)
+        for (int nRow = matchesCount + 2; nRow <= nEndRow; nRow++)
         {
             var row = worksheet.Cells[nRow, 1, nRow, worksheet.Dimension.End.Column];
 
@@ -81,10 +69,9 @@ public class ImportMatchesCommandHandler : IRequestHandler<ImportMatchesCommand,
                 AwayGoals = awayGoals,
                 CompetitionId = competitionId,
                 Season = season,
-                MatchDate = DateTime.SpecifyKind(date.Add(TimeSpan.Parse(time.ToString())),DateTimeKind.Utc),
+                MatchDate = DateTime.SpecifyKind(date.Add(TimeSpan.Parse(time.ToString())), DateTimeKind.Utc),
                 Status = Status.Finished,
                 Stage = Stage.Regular_Season,
-
             };
 
             matches.Add(match);

@@ -1,9 +1,8 @@
-﻿namespace Matches.Application.Results;
-
-public class ResultBase
+﻿namespace Teams.Domain.Results;
+public abstract class ResultBase
 {
     public bool IsSuccess { get; set; }
-    internal Enum Code { get; set; }
+    internal ErrorCode? Code { get; set; }
     internal string? CustomErrorMessage { get; set; } = string.Empty;
     public string ErrorMessage
     {
@@ -18,7 +17,7 @@ public class ResultBase
         }
     }
 
-    public Enum ErrorCode
+    public ErrorCode? ErrorCode
     {
         get
         {
@@ -31,19 +30,20 @@ public class ResultBase
         }
     }
 
-    protected ResultBase(bool isSuccess, Enum code = null, string customErrorMessage = null)
+    protected ResultBase(bool isSuccess, Enum? code = null, string? customErrorMessage = null)
     {
-        Code = code;
         IsSuccess = isSuccess;
+        Code = (ErrorCode?)code;
         CustomErrorMessage = customErrorMessage;
     }
+
     private string GetDescription()
     {
         if (!string.IsNullOrEmpty(CustomErrorMessage))
         {
-            return ErrorCode.GetDescription() + ". " + CustomErrorMessage;
+            return Code?.GetDescription() + ". " + CustomErrorMessage;
         }
 
-        return ErrorCode.GetDescription();
+        return Code?.GetDescription();
     }
 }

@@ -1,48 +1,24 @@
 ﻿using Matches.Application.Abstractions;
-using Matches.Application.Matches.Commands.ImportMatches.Models;
 using Matches.Domain.Entities;
 using Matches.Domain.Entities.Enums;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
-using System.Net.Http.Json;
 
 namespace Matches.Application;
-public class ImportDataReccuringJob
+public class ImportDataRecurringJob
 {
-    private readonly IHttpClientFactory _client;
     private readonly IMatchesDbContext _context;
 
-    public ImportDataReccuringJob(IHttpClientFactory client, IMatchesDbContext context)
+    public ImportDataRecurringJob(IMatchesDbContext context)
     {
-        _client = client;
         _context = context;
     }
 
-    //public async Task Handle(Guid leagueId, string season)
-    //{
-    //    var httpClient = _client.CreateClient();
-    //    var url = $"https://localhost:7057/api/competitions/{leagueId}/teams";
-
-    //    var response = await httpClient.GetFromJsonAsync<CompetitionResponse>(url);
-
-    //    if (response is null)
-    //        throw new ArgumentNullException();
-
-    //    var teamsDict = new Dictionary<string, Guid>();
-
-    //    foreach (var item in response.Teams)
-    //    {
-    //        teamsDict.Add(item.Name, item.Id);
-    //    }
-
-    //    await ImportMatches(teamsDict, leagueId, season);
-    //}
-
-    private async Task ImportMatches(Guid competitionId, string season)
+    public async Task ImportMatches(Guid competitionId, string season)
     {
         var path = @"C:\Users\Ilya\Desktop\matches.xlsx";
 
-        using var stream = System.IO.File.OpenRead(path);
+        using var stream = File.OpenRead(path);
         using var excelPackage = new ExcelPackage(stream);
 
         var worksheet = excelPackage.Workbook.Worksheets[0];
@@ -59,7 +35,9 @@ public class ImportDataReccuringJob
             teamsDict.Add(item.Name, item.Id);
         }
 
-        for (int nRow = 2; nRow <= nEndRow; nRow++)
+        var matchesCount = await _context.Matches.CountAsync(x => x.CompetitionId == competitionId && x.Season == season);
+
+        for (int nRow = matchesCount + 2; nRow <= nEndRow; nRow++)
         {
             var row = worksheet.Cells[nRow, 1, nRow, worksheet.Dimension.End.Column];
 

@@ -1,4 +1,4 @@
-﻿using Matches.Application.Result;
+﻿using Matches.Application.Results;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using System.Net;
