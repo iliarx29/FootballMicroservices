@@ -1,7 +1,4 @@
-﻿using Matches.API.Settings;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Matches.API;
 
@@ -9,10 +6,10 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApi(this IServiceCollection services, ConfigurationManager configuration)
     {
-        var jwtSettings = new JwtSettings();
-        configuration.Bind(JwtSettings.SectionName, jwtSettings);
+        //var jwtSettings = new JwtSettings();
+        //configuration.Bind(JwtSettings.SectionName, jwtSettings);
 
-        services.AddSingleton(jwtSettings);
+        //services.AddSingleton(jwtSettings);
 
         services.AddAuthentication(opt =>
         {
@@ -23,7 +20,7 @@ public static class DependencyInjection
         .AddJwtBearer(opt =>
         {
             opt.Authority = "https://localhost:7191";
-            opt.Audience = "matches";
+            opt.Audience = "Matches";
             //opt.TokenValidationParameters = new()
             //{
             //    ValidateIssuer = true,

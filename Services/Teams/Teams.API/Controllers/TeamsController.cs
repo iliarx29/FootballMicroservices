@@ -29,6 +29,7 @@ public class TeamsController : ControllerBase
         return new CustomActionResult<IEnumerable<TeamResponse>>(HttpStatusCode.OK, result.Value);
     }
 
+    [Authorize(Roles = "User")]
     [HttpGet("{id:guid}")]
     public async Task<CustomActionResult<TeamResponse>> GetTeamById(Guid id)
     {
@@ -42,7 +43,7 @@ public class TeamsController : ControllerBase
         return new CustomActionResult<TeamResponse>(HttpStatusCode.OK, result.Value);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<CustomActionResult<TeamResponse>> AddTeam(TeamRequest teamRequest)
     {
@@ -58,6 +59,7 @@ public class TeamsController : ControllerBase
         return new CustomActionResult<TeamResponse>(HttpStatusCode.Created, result.Value);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id:guid}")]
     public async Task<CustomActionResult> UpdateTeam(Guid id, TeamRequest teamRequest)
     {
@@ -69,7 +71,7 @@ public class TeamsController : ControllerBase
         return new CustomActionResult(HttpStatusCode.NoContent);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:guid}")]
     public async Task<CustomActionResult> DeleteTeam(Guid id)
     {
@@ -81,6 +83,7 @@ public class TeamsController : ControllerBase
         return new CustomActionResult(HttpStatusCode.NoContent);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost("import")]
     public async Task<CustomActionResult<object>> ImportTeams()
     {

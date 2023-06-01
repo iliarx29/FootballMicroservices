@@ -20,15 +20,20 @@ public static class DependencyInjection
             opt.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
         })
-        .AddJwtBearer(opt => opt.TokenValidationParameters = new()
+        .AddJwtBearer(opt =>
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtSettings.Issuer,
-            ValidAudience = jwtSettings.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret))
+            opt.Authority = "https://localhost:7191";
+            opt.Audience = "Teams";
+            //opt.TokenValidationParameters = new()
+            //{
+            //    ValidateIssuer = true,
+            //    ValidateAudience = true,
+            //    ValidateLifetime = true,
+            //    ValidateIssuerSigningKey = true,
+            //    ValidIssuer = jwtSettings.Issuer,
+            //    ValidAudience = jwtSettings.Audience,
+            //    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret))
+            //};
         });
 
         return services;

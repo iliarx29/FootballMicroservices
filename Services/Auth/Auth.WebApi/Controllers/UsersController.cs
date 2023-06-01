@@ -1,16 +1,20 @@
 ﻿using Auth.Application.Users.Commands;
 using Auth.Application.Users.Queries;
+using Auth.Domain.Entities;
 using MediatR;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc; 
+using static Duende.IdentityServer.IdentityServerConstants;
 
 namespace Auth.WebApi.Controllers;
+
 [Route("api/[controller]")]
 [ApiController]
+[Authorize(Policy = LocalApi.PolicyName, Roles = "Admin")]
 public class UsersController : ControllerBase
 {
     private readonly ISender _sender;
-
     public UsersController(ISender sender)
     {
         _sender = sender;

@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Auth.Infrastructure;
 public static class DatabaseInitializer
 {
-    public static void PopulateIdentityServer(IApplicationBuilder app, IConfiguration configuration)
+    public static async Task PopulateIdentityServer(IApplicationBuilder app, IConfiguration configuration)
     {
         var identityServerSettings = configuration.GetSection(nameof(IdentityServerSettings)).Get<IdentityServerSettings>();
 

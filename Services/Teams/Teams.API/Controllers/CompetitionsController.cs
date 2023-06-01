@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using Teams.API.Common;
 using Teams.Domain.Interfaces;
@@ -38,6 +39,7 @@ public class CompetitionsController : ControllerBase
         return new CustomActionResult<CompetitionResponse>(HttpStatusCode.OK, result.Value);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<CustomActionResult<CompetitionResponse>> AddCompetition(CompetitionRequest competitionRequest)
     {
@@ -49,6 +51,7 @@ public class CompetitionsController : ControllerBase
         return new CustomActionResult<CompetitionResponse>(HttpStatusCode.Created, result.Value);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id:guid}")]
     public async Task<CustomActionResult> UpdateCompetition(Guid id, CompetitionRequest leagueRequest)
     {
@@ -60,6 +63,7 @@ public class CompetitionsController : ControllerBase
         return new CustomActionResult(HttpStatusCode.NoContent);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:guid}")]
     public async Task<CustomActionResult> DeleteCompetition(Guid id)
     {
@@ -82,6 +86,7 @@ public class CompetitionsController : ControllerBase
         return new CustomActionResult<CompetitionResponse>(HttpStatusCode.OK, result.Value);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id:guid}/teams")]
     public async Task<CustomActionResult<object>> AddTeamsToCompetition(Guid id, [FromBody] List<Guid> teamIds)
     {
@@ -93,6 +98,7 @@ public class CompetitionsController : ControllerBase
         return new CustomActionResult<object>(HttpStatusCode.OK, new { CountOfAddedTeamToCompetition = result.Value });
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:guid}/teams")]
     public async Task<CustomActionResult<object>> RemoveTeamsFromCompetition(Guid id, [FromBody] List<Guid> teamsIds)
     {
