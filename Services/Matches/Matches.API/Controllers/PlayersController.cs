@@ -4,6 +4,7 @@ using Matches.Application.Players.Queries;
 using Matches.Application.Results;
 using Matches.Domain.Entities;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -52,6 +53,7 @@ public class PlayersController : ControllerBase
         return new CustomActionResult<Player>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail<Player>(ErrorCode.NotFound, players.ErrorMessage);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> CreatePlayer(CreatePlayerCommand command)
     {
@@ -60,6 +62,7 @@ public class PlayersController : ControllerBase
         return CreatedAtAction(nameof(GetPlayerById), new { player.Value.Id }, player);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost("importPlayers")]
     public async Task<CustomActionResult> ImportPlayers()
     {

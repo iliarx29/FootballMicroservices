@@ -1,4 +1,5 @@
 using Hangfire;
+using Matches.API;
 using Matches.API.Middlewares;
 using Matches.Application;
 using Matches.Infrastructure;
@@ -10,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services
+    .AddApi(builder.Configuration)
     .AddApplication(builder.Configuration)
     .AddInsfrastructure(builder.Configuration);
 
@@ -33,6 +35,8 @@ app.UseHttpsRedirection();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseCors(builder => builder.AllowAnyOrigin());
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
