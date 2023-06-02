@@ -9,10 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Auth.Infrastructure;
 public static class DatabaseInitializer
 {
-    public static async Task PopulateIdentityServer(IApplicationBuilder app, IConfiguration configuration)
+    public static void PopulateIdentityServer(IApplicationBuilder app, IConfiguration configuration)
     {
-        var identityServerSettings = configuration.GetSection(nameof(IdentityServerSettings)).Get<IdentityServerSettings>();
-
         using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
         {
             serviceScope.ServiceProvider.GetRequiredService<PersistedGrantDbContext>().Database.Migrate();
@@ -28,7 +26,7 @@ public static class DatabaseInitializer
 
             if (!context.ApiScopes.Any())
             {
-                foreach (var resource in identityServerSettings.ApiScopes)
+                foreach (var resource in IdentityServerSettings.ApiScopes)
                 {
                     context.ApiScopes.Add(resource.ToEntity());
                 }
@@ -37,7 +35,7 @@ public static class DatabaseInitializer
 
             if (!context.ApiResources.Any())
             {
-                foreach (var resource in identityServerSettings.ApiResources)
+                foreach (var resource in IdentityServerSettings.ApiResources)
                 {
                     context.ApiResources.Add(resource.ToEntity());
                 }
@@ -46,7 +44,7 @@ public static class DatabaseInitializer
 
             if (!context.Clients.Any())
             {
-                foreach (var client in identityServerSettings.Clients)
+                foreach (var client in IdentityServerSettings.Clients)
                 {
                     context.Clients.Add(client.ToEntity());
                 }
@@ -55,7 +53,7 @@ public static class DatabaseInitializer
 
             if (!context.IdentityResources.Any())
             {
-                foreach (var resource in identityServerSettings.IdentityResources)
+                foreach (var resource in IdentityServerSettings.IdentityResources)
                 {
                     context.IdentityResources.Add(resource.ToEntity());
                 }

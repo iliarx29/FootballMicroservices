@@ -1,10 +1,10 @@
 ﻿using Auth.Application.Abstractions;
 using Auth.Domain.Entities;
-using Auth.Infrastructure.Settings;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Reflection;
 
 namespace Auth.Infrastructure;
@@ -40,6 +40,17 @@ public static class DependencyInjection
         .AddRoles<IdentityRole>()
         .AddEntityFrameworkStores<AuthDbContext>()
         .AddDefaultTokenProviders();
+
+        services.AddAuthentication()
+            .AddOpenIdConnect("Google", "Google", options =>
+            {
+                IConfigurationSection googleAuthNSection = configuration.GetSection("Google");
+                options.ClientId = googleAuthNSection["ClientId"];
+                options.ClientSecret = googleAuthNSection["ClientSecret"];
+                options.Authority = "https://accounts.google.com";
+                options.ResponseType = OpenIdConnectResponseType.Code;
+                options.CallbackPath = "/signin-google";
+            });
 
         services.AddIdentityServer(options =>
         {

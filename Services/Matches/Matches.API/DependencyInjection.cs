@@ -6,11 +6,6 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApi(this IServiceCollection services, ConfigurationManager configuration)
     {
-        //var jwtSettings = new JwtSettings();
-        //configuration.Bind(JwtSettings.SectionName, jwtSettings);
-
-        //services.AddSingleton(jwtSettings);
-
         services.AddAuthentication(opt =>
         {
             opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -21,16 +16,21 @@ public static class DependencyInjection
         {
             opt.Authority = "https://localhost:7191";
             opt.Audience = "Matches";
-            //opt.TokenValidationParameters = new()
-            //{
-            //    ValidateIssuer = true,
-            //    ValidateAudience = true,
-            //    ValidateLifetime = true,
-            //    ValidateIssuerSigningKey = true,
-            //    ValidIssuer = jwtSettings.Issuer,
-            //    ValidAudience = jwtSettings.Audience,
-            //    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret))
-            //};
+        });
+
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("read_access", policy =>
+            {
+                policy.RequireRole("Admin", "User");
+                policy.RequireClaim("scope", "matches.readaccess", "matches.fullaccess");
+            });
+
+            options.AddPolicy("write_access", policy =>
+            {
+                policy.RequireRole("Admin");
+                policy.RequireClaim("scope", "matches.writeaccess", "matches.fullaccess");
+            });
         });
 
         return services;

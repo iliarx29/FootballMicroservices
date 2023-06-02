@@ -39,7 +39,7 @@ public class CompetitionsController : ControllerBase
         return new CustomActionResult<CompetitionResponse>(HttpStatusCode.OK, result.Value);
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize("write_access")]
     [HttpPost]
     public async Task<CustomActionResult<CompetitionResponse>> AddCompetition(CompetitionRequest competitionRequest)
     {
@@ -51,7 +51,7 @@ public class CompetitionsController : ControllerBase
         return new CustomActionResult<CompetitionResponse>(HttpStatusCode.Created, result.Value);
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize("write_access")]
     [HttpPut("{id:guid}")]
     public async Task<CustomActionResult> UpdateCompetition(Guid id, CompetitionRequest leagueRequest)
     {
@@ -63,7 +63,7 @@ public class CompetitionsController : ControllerBase
         return new CustomActionResult(HttpStatusCode.NoContent);
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize("write_access")]
     [HttpDelete("{id:guid}")]
     public async Task<CustomActionResult> DeleteCompetition(Guid id)
     {
@@ -86,7 +86,7 @@ public class CompetitionsController : ControllerBase
         return new CustomActionResult<CompetitionResponse>(HttpStatusCode.OK, result.Value);
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize("write_access")]
     [HttpPut("{id:guid}/teams")]
     public async Task<CustomActionResult<object>> AddTeamsToCompetition(Guid id, [FromBody] List<Guid> teamIds)
     {
@@ -98,7 +98,7 @@ public class CompetitionsController : ControllerBase
         return new CustomActionResult<object>(HttpStatusCode.OK, new { CountOfAddedTeamToCompetition = result.Value });
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize("write_access")]
     [HttpDelete("{id:guid}/teams")]
     public async Task<CustomActionResult<object>> RemoveTeamsFromCompetition(Guid id, [FromBody] List<Guid> teamsIds)
     {

@@ -45,6 +45,7 @@ public class MatchesController : ControllerBase
         return new CustomActionResult<Match>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail<Match>(ErrorCode.NotFound, matches.ErrorMessage);
     }
 
+    [Authorize("read_access")]
     [HttpGet("{id:guid}")]
     public async Task<CustomActionResult> GetMatchById(Guid id)
     {
@@ -78,7 +79,7 @@ public class MatchesController : ControllerBase
         return new CustomActionResult<Match>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail<Match>(ErrorCode.NotFound, matches.ErrorMessage);
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize("write_access")]
     [HttpPost]
     public async Task<CustomActionResult> AddMatch(CreateMatchCommand command)
     {
@@ -101,7 +102,7 @@ public class MatchesController : ControllerBase
         return new CustomActionResult<IEnumerable<Ranking>>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail<Ranking>(ErrorCode.NotFound, standings.ErrorMessage);
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize("write_access")]
     [HttpDelete("{id:guid}")]
     public async Task<CustomActionResult> DeleteMatch(Guid id)
     {
@@ -124,7 +125,7 @@ public class MatchesController : ControllerBase
         return new CustomActionResult<int>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail(ErrorCode.NotFound, result.ErrorMessage);
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize("write_access")]
     [HttpPut("{id:guid}")]
     public async Task<CustomActionResult> UpdateMatch(UpdateMatchCommand command)
     {
@@ -136,7 +137,7 @@ public class MatchesController : ControllerBase
         return new CustomActionResult(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail(ErrorCode.NotFound, result.ErrorMessage);
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize("write_access")]
     [HttpPost("competitions/{competitionId:guid}/jobImport")]
     public IActionResult ImportJob(Guid competitionId, [FromQuery] string season)
     {

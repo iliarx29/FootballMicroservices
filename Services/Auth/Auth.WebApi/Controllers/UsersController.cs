@@ -3,7 +3,6 @@ using Auth.Application.Users.Queries;
 using Auth.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc; 
 using static Duende.IdentityServer.IdentityServerConstants;
 
@@ -11,7 +10,7 @@ namespace Auth.WebApi.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize(Policy = LocalApi.PolicyName, Roles = "Admin")]
+[Authorize(Policy = LocalApi.PolicyName, Roles = Roles.Admin)]
 public class UsersController : ControllerBase
 {
     private readonly ISender _sender;
@@ -32,7 +31,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetUsers(Guid id)
+    public async Task<IActionResult> GetUserById(Guid id)
     {
         var result = await _sender.Send(new GetUserByIdQuery(id));
 

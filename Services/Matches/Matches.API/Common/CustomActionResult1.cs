@@ -25,7 +25,7 @@ public class CustomActionResult<T> : CustomActionResult, IConvertToActionResult
     }
     public CustomActionResult<T> Success<T>(T value)
     {
-        return new CustomActionResult<T>(HttpStatusCode.OK, ErrorCode.OK, null, value);
+        return new CustomActionResult<T>(HttpStatusCode, ErrorCode.OK, null, value);
     }
 
     public CustomActionResult<T> Fail<T>(ErrorCode? code, string? message = null)

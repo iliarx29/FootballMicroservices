@@ -24,16 +24,21 @@ public static class DependencyInjection
         {
             opt.Authority = "https://localhost:7191";
             opt.Audience = "Teams";
-            //opt.TokenValidationParameters = new()
-            //{
-            //    ValidateIssuer = true,
-            //    ValidateAudience = true,
-            //    ValidateLifetime = true,
-            //    ValidateIssuerSigningKey = true,
-            //    ValidIssuer = jwtSettings.Issuer,
-            //    ValidAudience = jwtSettings.Audience,
-            //    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret))
-            //};
+        });
+
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("read_access", policy =>
+            {
+                policy.RequireRole("Admin", "User");
+                policy.RequireClaim("scope", "teams.readaccess", "teams.fullaccess");
+            });
+
+            options.AddPolicy("write_access", policy =>
+            {
+                policy.RequireRole("Admin");
+                policy.RequireClaim("scope", "teams.writeaccess", "teams.fullaccess");
+            });
         });
 
         return services;
