@@ -49,6 +49,12 @@ public static class DependencyInjection
             });
         });
 
+        services.AddStackExchangeRedisCache(redisOptions => 
+        {
+            var connection = configuration.GetConnectionString("Redis");
+            redisOptions.Configuration = connection;
+        });
+
         return services;
     }
 }
