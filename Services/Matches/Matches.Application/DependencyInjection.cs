@@ -1,7 +1,9 @@
 ﻿using FluentValidation;
 using Hangfire;
 using Hangfire.PostgreSql;
+using MassTransit;
 using Matches.Application.Behaviors;
+using Matches.Application.Consumers;
 using Matches.Application.Mappings;
 using MediatR;
 using Microsoft.Extensions.Configuration;
@@ -30,6 +32,22 @@ public static class DependencyInjection
         services.AddHangfireServer();
 
         services.AddScoped<ImportDataRecurringJob>();
+
+        services.AddMassTransit(x =>
+        {
+            x.AddConsumer<TeamCreatedEventConsumer>();
+
+            x.UsingRabbitMq((context, cfg) =>
+            {
+                cfg.Host("localhost", h =>
+                {
+                    h.Username("guest");
+                    h.Password("guest");
+                });
+
+                cfg.ConfigureEndpoints(context);
+            });
+        });
 
         return services;
     }

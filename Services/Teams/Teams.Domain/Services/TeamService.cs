@@ -2,7 +2,7 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
-using Teams.Domain.Exceptions;
+using Shared.RabbitMQ;
 using Teams.Domain.Interfaces;
 using Teams.Domain.Models;
 using Teams.Domain.Results;
@@ -15,12 +15,14 @@ public class TeamService : ITeamService
     private readonly TeamsDbContext _context;
     private readonly IMapper _mapper;
     private readonly IValidator<TeamRequest> _validator;
+    private readonly IEventBus _eventBus;
 
-    public TeamService(TeamsDbContext context, IMapper mapper, IValidator<TeamRequest> validator)
+    public TeamService(TeamsDbContext context, IMapper mapper, IValidator<TeamRequest> validator, IEventBus eventBus)
     {
         _context = context;
         _mapper = mapper;
         _validator = validator;
+        _eventBus = eventBus;
     }
 
     public async Task<Result<IEnumerable<TeamResponse>>> GetAllTeamsAsync()
@@ -46,12 +48,19 @@ public class TeamService : ITeamService
 
     public async Task<Result<TeamResponse>> AddTeamAsync(TeamRequest teamRequest)
     {
+
         _validator.ValidateAndThrow(teamRequest);
 
         var team = _mapper.Map<Team>(teamRequest);
 
         await _context.Teams.AddAsync(team);
         await _context.SaveChangesAsync();
+
+        await _eventBus.PublishAsync(new TeamCreatedEvent
+        {
+            Id = team.Id,
+            Name = team.Name
+        });
 
         var teamResponse = _mapper.Map<TeamResponse>(team);
 
