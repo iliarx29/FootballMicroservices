@@ -43,7 +43,7 @@ public class TeamsController : ControllerBase
         return new CustomActionResult<TeamResponse>(HttpStatusCode.OK, result.Value);
     }
 
-    [Authorize("write_access")]
+    // [Authorize("write_access")]
     [HttpPost]
     public async Task<CustomActionResult<TeamResponse>> AddTeam(TeamRequest teamRequest)
     {
