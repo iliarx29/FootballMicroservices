@@ -3,6 +3,7 @@ using Matches.Application.Results;
 using Matches.Domain.Entities;
 using Matches.Domain.Entities.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 
@@ -18,25 +19,29 @@ public class ImportMatchesCommandHandler : IRequestHandler<ImportMatchesCommand,
 
     public async Task<Result<int>> Handle(ImportMatchesCommand request, CancellationToken cancellationToken)
     {
-        var teams = await _context.Teams.ToListAsync(cancellationToken);
-
-        var teamsDict = new Dictionary<string, Guid>();
-
-        foreach (var item in teams)
+        if (request.File.Length > 0)
         {
-            teamsDict.Add(item.Name, item.Id);
+            var teams = await _context.Teams.ToListAsync(cancellationToken);
+
+            var teamsDict = new Dictionary<string, Guid>();
+
+            foreach (var item in teams)
+            {
+                teamsDict.Add(item.Name, item.Id);
+            }
+
+            var result = await ImportMatches(teamsDict, request.CompetitionId, request.Season, request.File);
+
+            return Result<int>.Success(result);
         }
 
-        var result = await ImportMatches(teamsDict, request.CompetitionId, request.Season);
-
-        return Result<int>.Success(result);
+        return Result<int>.Error(ErrorCode.NotFound, "File not found");
     }
 
-    private async Task<int> ImportMatches(Dictionary<string, Guid> teamsDict, Guid competitionId, string season)
+    private async Task<int> ImportMatches(Dictionary<string, Guid> teamsDict, Guid competitionId, string season, IFormFile file)
     {
-        var path = @"C:\Users\Ilya\Desktop\matches.xlsx";
-
-        using var stream = File.OpenRead(path);
+        using var stream = File.Create(file.FileName);
+        file.CopyTo(stream);
         using var excelPackage = new ExcelPackage(stream);
 
         var worksheet = excelPackage.Workbook.Worksheets[0];

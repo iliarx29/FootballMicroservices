@@ -53,7 +53,7 @@ public class PlayersController : ControllerBase
         return new CustomActionResult<Player>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail<Player>(ErrorCode.NotFound, players.ErrorMessage);
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize("write_access")]
     [HttpPost]
     public async Task<IActionResult> CreatePlayer(CreatePlayerCommand command)
     {
@@ -62,7 +62,7 @@ public class PlayersController : ControllerBase
         return CreatedAtAction(nameof(GetPlayerById), new { player.Value.Id }, player);
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize("write_access")]
     [HttpPost("importPlayers")]
     public async Task<CustomActionResult> ImportPlayers()
     {

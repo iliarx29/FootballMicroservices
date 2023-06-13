@@ -25,7 +25,7 @@ public class TeamsController : ControllerBase
 
         if (!result.IsSuccess)
             return new CustomActionResult<IEnumerable<TeamResponse>>(HttpStatusCode.NotFound, result.ErrorMessage);
-            
+
         return new CustomActionResult<IEnumerable<TeamResponse>>(HttpStatusCode.OK, result.Value);
     }
 
@@ -43,7 +43,7 @@ public class TeamsController : ControllerBase
         return new CustomActionResult<TeamResponse>(HttpStatusCode.OK, result.Value);
     }
 
-    // [Authorize("write_access")]
+    [Authorize("write_access")]
     [HttpPost]
     public async Task<CustomActionResult<TeamResponse>> AddTeam(TeamRequest teamRequest)
     {
@@ -67,7 +67,7 @@ public class TeamsController : ControllerBase
 
         if (!result.IsSuccess)
             return new CustomActionResult(HttpStatusCode.NotFound, result.ErrorMessage);
-            
+
         return new CustomActionResult(HttpStatusCode.NoContent);
     }
 
@@ -92,7 +92,7 @@ public class TeamsController : ControllerBase
         if (!result.IsSuccess)
             return new CustomActionResult<object>(HttpStatusCode.NotFound, result.ErrorMessage);
 
-        return new CustomActionResult<object>(HttpStatusCode.OK, new {CountOfAddedTeams = result.Value});
+        return new CustomActionResult<object>(HttpStatusCode.OK, new { CountOfAddedTeams = result.Value });
 
     }
 }

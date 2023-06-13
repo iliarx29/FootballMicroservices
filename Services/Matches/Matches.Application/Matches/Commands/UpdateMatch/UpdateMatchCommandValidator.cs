@@ -12,6 +12,6 @@ public class UpdateMatchCommandValidator : AbstractValidator<UpdateMatchCommand>
         RuleFor(x => x.Season).NotNull().NotEmpty();
         RuleFor(x => x.CompetitionId).NotNull().NotEmpty();
         RuleFor(x => x.Status).NotNull().IsEnumName(typeof(Status));
-        RuleFor(x => x.Stage).NotNull().IsEnumName(typeof(Status));
+        RuleFor(x => x.Stage).NotNull().IsEnumName(typeof(Stage));
     }
 }

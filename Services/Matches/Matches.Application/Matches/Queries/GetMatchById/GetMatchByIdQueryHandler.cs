@@ -1,45 +1,34 @@
-﻿using Matches.Application.Abstractions;
+﻿using AutoMapper;
+using Matches.Application.Abstractions;
+using Matches.Application.Matches.Common.Responses;
 using Matches.Application.Results;
-using Matches.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Matches.Application.Matches.Queries.GetMatchById;
-public class GetMatchByIdQueryHandler : IRequestHandler<GetMatchByIdQuery, Result<Match>>
+public class GetMatchByIdQueryHandler : IRequestHandler<GetMatchByIdQuery, Result<MatchResponse>>
 {
     private readonly IMatchesDbContext _context;
+    private readonly IMapper _mapper;
 
-    public GetMatchByIdQueryHandler(IMatchesDbContext context)
+    public GetMatchByIdQueryHandler(IMatchesDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
-    public async Task<Result<Match>> Handle(GetMatchByIdQuery query, CancellationToken cancellationToken)
+    public async Task<Result<MatchResponse>> Handle(GetMatchByIdQuery query, CancellationToken cancellationToken)
     {
         var match = await _context.Matches
-            .Select(x => new Match
-            {
-                Id = x.Id,
-                HomeTeamId = x.HomeTeamId,
-                HomeGoals = x.HomeGoals,
-                AwayGoals = x.AwayGoals,
-                AwayTeamId = x.AwayTeamId,
-                MatchDate = x.MatchDate,
-                Status = x.Status,
-                Matchday = x.Matchday,
-                CompetitionId = x.CompetitionId,
-                Season = x.Season,
-                Stage = x.Stage,
-                Group = x.Group,
-                HomePlayers = x.HomePlayers.Select(x => new Player { Id = x.Id, Name = x.Name }).ToList(),
-                AwayPlayers = x.AwayPlayers.Select(x => new Player { Id = x.Id, Name = x.Name }).ToList()
-            })
-            
+            .Include(x => x.HomeTeam)
+            .Include(x => x.AwayTeam)
             .FirstOrDefaultAsync(x => x.Id == query.Id, cancellationToken);
 
         if (match is null)
-            return Result<Match>.Error(ErrorCode.NotFound, $"Match with id: '{query.Id}' not found");
+            return Result<MatchResponse>.Error(ErrorCode.NotFound, $"Match with id: '{query.Id}' not found");
 
-        return Result<Match>.Success(match);
+        var matchResponse = _mapper.Map<MatchResponse>(match);
+
+        return Result<MatchResponse>.Success(matchResponse);
     }
 }

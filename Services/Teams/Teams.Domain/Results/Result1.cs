@@ -15,19 +15,19 @@ public class Result<T> : ResultBase
     }
 
     protected Result(bool isSuccess, Enum code, string? customErrorMessage = null)
-        :base(isSuccess, code, customErrorMessage)
+        : base(isSuccess, code, customErrorMessage)
     {
         _value = default(T);
     }
 
     protected Result(bool isSuccess, T value)
-        :base(isSuccess)
+        : base(isSuccess)
     {
         _value = value;
     }
 
     private Result(Result result)
-        :base(result.IsSuccess)
+        : base(result.IsSuccess)
     {
         if (!result.IsSuccess)
         {

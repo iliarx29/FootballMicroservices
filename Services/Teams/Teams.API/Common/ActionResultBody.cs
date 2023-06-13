@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using Teams.Domain.Results;
 
 namespace Teams.API.Common;
 

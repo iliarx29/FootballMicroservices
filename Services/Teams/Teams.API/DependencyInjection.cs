@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using Teams.API.Settings;
 
 namespace Teams.API;
@@ -22,8 +20,13 @@ public static class DependencyInjection
         })
         .AddJwtBearer(opt =>
         {
-            opt.Authority = "https://localhost:7191";
-            opt.Audience = "Teams";
+            opt.Authority = "http://localhost:5000";
+            //opt.Audience = "Teams";
+            opt.MetadataAddress = "http://localhost:5000/.well-known/openid-configuration";
+            opt.RequireHttpsMetadata = false;
+
+            opt.TokenValidationParameters = new() { ValidateAudience = false, ValidateIssuer = false };
+
         });
 
         services.AddAuthorization(options =>

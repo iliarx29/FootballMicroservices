@@ -7,7 +7,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInsfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContext<TeamsDbContext>(options => 
+        services.AddDbContext<TeamsDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
         return services;

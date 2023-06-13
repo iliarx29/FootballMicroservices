@@ -1,7 +1,9 @@
 using Auth.Application;
 using Auth.Infrastructure;
+using Microsoft.IdentityModel.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddCors();
 
 builder.Services
     .AddApplication(builder.Configuration)
@@ -14,18 +16,19 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-DatabaseInitializer.PopulateIdentityServer(app, builder.Configuration);
+//DatabaseInitializer.PopulateIdentityServer(app, builder.Configuration);
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    IdentityModelEventSource.ShowPII = true;
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseStaticFiles();
-
+app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 app.UseIdentityServer();
 
 app.UseAuthorization();

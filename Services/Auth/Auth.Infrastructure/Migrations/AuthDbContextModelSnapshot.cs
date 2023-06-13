@@ -42,11 +42,9 @@ namespace Auth.Infrastructure.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("FirstName")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<bool>("LockoutEnabled")
@@ -118,6 +116,18 @@ namespace Auth.Infrastructure.Migrations
                         .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "c631da98-c66b-4f7f-a401-fd442c417adb",
+                            Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = "1aa7838f-1557-4c63-a776-32afb2b22423",
+                            Name = "User"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

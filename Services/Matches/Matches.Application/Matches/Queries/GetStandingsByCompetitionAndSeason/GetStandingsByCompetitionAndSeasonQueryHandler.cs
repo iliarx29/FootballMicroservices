@@ -5,6 +5,7 @@ using Matches.Application.Results;
 using Matches.Domain.Entities;
 using Matches.Domain.Entities.Enums;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Linq.Dynamic.Core;
 using System.Text.Json;
@@ -35,7 +36,11 @@ public class GetStandingsByCompetitionAndSeasonQueryHandler : IRequestHandler<Ge
         {
             standings = GetStandings(query);
 
-            await _distributedCache.SetStringAsync(key, JsonSerializer.Serialize(standings), cancellationToken);
+            await _distributedCache.SetStringAsync(
+                key,
+                JsonSerializer.Serialize(standings),
+                new DistributedCacheEntryOptions() { AbsoluteExpiration = DateTimeOffset.UtcNow.AddDays(2) },
+                cancellationToken);
 
             return Result<List<Ranking>>.Success(standings);
         }
@@ -51,14 +56,15 @@ public class GetStandingsByCompetitionAndSeasonQueryHandler : IRequestHandler<Ge
                                 .Where(x => x.CompetitionId == query.CompetitionId)
                                 .Where(x => x.Season == query.Season)
                                 .Where(x => x.Status == Status.Finished)
-                                .Select(x => new MatchForTeam { TeamId = x.HomeTeamId, GoalsScored = x.HomeGoals, GoalsConceded = x.AwayGoals })
+                                .Select(x => new MatchForTeam { TeamId = x.HomeTeamId, TeamName = x.HomeTeam.Name, GoalsScored = x.HomeGoals, GoalsConceded = x.AwayGoals })
                         .Concat(
                                  _context.Matches
+                                 .Include(x => x.AwayTeam)
                                 .Where(x => x.CompetitionId == query.CompetitionId)
                                 .Where(x => x.Season == query.Season)
                                 .Where(x => x.Status == Status.Finished)
-                                .Select(x => new MatchForTeam { TeamId = x.AwayTeamId, GoalsScored = x.AwayGoals, GoalsConceded = x.HomeGoals }))
-                .GroupBy(x => x.TeamId)
+                                .Select(x => new MatchForTeam { TeamId = x.AwayTeamId, TeamName = x.AwayTeam.Name, GoalsScored = x.AwayGoals, GoalsConceded = x.HomeGoals }))
+                .GroupBy(x => new GroupingObject { TeamId = x.TeamId, TeamName = x.TeamName })
                 .ProjectTo<Ranking>(_mapper.ConfigurationProvider)
                 .ToList();
 
@@ -73,9 +79,16 @@ public class GetStandingsByCompetitionAndSeasonQueryHandler : IRequestHandler<Ge
     }
 }
 
-public class MatchForTeam
+internal class GroupingObject
 {
     public Guid TeamId { get; set; }
+    public required string TeamName { get; set; }
+}
+
+internal class MatchForTeam
+{
+    public Guid TeamId { get; set; }
+    public required string TeamName { get; set; }
     public int? GoalsScored { get; set; }
     public int? GoalsConceded { get; set; }
 }

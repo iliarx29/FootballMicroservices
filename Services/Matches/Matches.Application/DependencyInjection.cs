@@ -36,6 +36,8 @@ public static class DependencyInjection
         services.AddMassTransit(x =>
         {
             x.AddConsumer<TeamCreatedEventConsumer>();
+            x.AddConsumer<TeamDeletedEventConsumer>();
+            x.AddConsumer<TeamsImportedEventConsumer>();
 
             x.UsingRabbitMq((context, cfg) =>
             {
@@ -49,7 +51,7 @@ public static class DependencyInjection
             });
         });
 
-        services.AddStackExchangeRedisCache(redisOptions => 
+        services.AddStackExchangeRedisCache(redisOptions =>
         {
             var connection = configuration.GetConnectionString("Redis");
             redisOptions.Configuration = connection;

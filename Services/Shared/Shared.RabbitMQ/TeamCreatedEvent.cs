@@ -1,5 +1,3 @@
-using System;
-
 namespace Shared.RabbitMQ;
 
 public record TeamCreatedEvent
