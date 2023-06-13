@@ -97,12 +97,14 @@ public class TeamService : ITeamService
         _context.Teams.Remove(team);
         await _context.SaveChangesAsync();
 
+        await _eventBus.PublishAsync(new TeamDeletedEvent(id));
+
         return Result.Success();
     }
 
     public async Task<Result<int>> ImportTeams()
     {
-        var path = @"C:\Users\Ilya\Desktop\Teams.xlsx";
+        var path = @"C:\Users\iliaa\OneDrive\Рабочий стол\Teams.xlsx";
 
         using var stream = File.OpenRead(path);
         using var excelPackage = new ExcelPackage(stream);
@@ -143,6 +145,10 @@ public class TeamService : ITeamService
         await _context.AddRangeAsync(teams);
 
         await _context.SaveChangesAsync();
+
+        TeamsImportedEvent createdTeams = new(teams.Select(x => new TeamCreatedEvent { Id = x.Id, Name = x.Name }).ToList());
+
+        await _eventBus.PublishAsync(createdTeams);
 
         return Result<int>.Success(numbOfMatchesAdded);
     }

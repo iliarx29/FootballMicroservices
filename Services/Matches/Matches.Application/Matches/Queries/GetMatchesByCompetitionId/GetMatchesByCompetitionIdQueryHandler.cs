@@ -1,23 +1,33 @@
-﻿using Matches.Application.Abstractions;
+﻿using AutoMapper;
+using Matches.Application.Abstractions;
+using Matches.Application.Matches.Common.Responses;
 using Matches.Application.Results;
-using Matches.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Matches.Application.Matches.Queries.GetMatchesByCompetitionId;
-public class GetMatchesByCompetitionIdQueryHandler : IRequestHandler<GetMatchesByCompetitionIdQuery, Result<IEnumerable<Match>>>
+public class GetMatchesByCompetitionIdQueryHandler : IRequestHandler<GetMatchesByCompetitionIdQuery, Result<IEnumerable<MatchResponse>>>
 {
     private readonly IMatchesDbContext _context;
+    private readonly IMapper _mapper;
 
-    public GetMatchesByCompetitionIdQueryHandler(IMatchesDbContext context)
+    public GetMatchesByCompetitionIdQueryHandler(IMatchesDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
-    public async Task<Result<IEnumerable<Match>>> Handle(GetMatchesByCompetitionIdQuery query, CancellationToken cancellationToken)
+    public async Task<Result<IEnumerable<MatchResponse>>> Handle(GetMatchesByCompetitionIdQuery query, CancellationToken cancellationToken)
     {
-        var matches = await _context.Matches.AsNoTracking().Where(x => x.CompetitionId == query.LeagueId).ToListAsync(cancellationToken);
+        var matches = await _context.Matches
+            .Include(x => x.HomeTeam)
+            .Include(x => x.AwayTeam)
+            .AsNoTracking()
+            .Where(x => x.CompetitionId == query.CompetitionId)
+            .ToListAsync(cancellationToken);
 
-        return Result<IEnumerable<Match>>.Success(matches);
+        var matchesResponse = _mapper.Map<IEnumerable<MatchResponse>>(matches);
+
+        return Result<IEnumerable<MatchResponse>>.Success(matchesResponse);
     }
 }

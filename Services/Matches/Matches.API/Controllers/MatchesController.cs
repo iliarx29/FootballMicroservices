@@ -5,10 +5,12 @@ using Matches.Application.Matches.Commands.CreateMatch;
 using Matches.Application.Matches.Commands.DeleteMatch;
 using Matches.Application.Matches.Commands.ImportMatches;
 using Matches.Application.Matches.Commands.UpdateMatch;
+using Matches.Application.Matches.Common.Responses;
 using Matches.Application.Matches.Queries.GetH2HMatches;
 using Matches.Application.Matches.Queries.GetMatchById;
 using Matches.Application.Matches.Queries.GetMatches;
 using Matches.Application.Matches.Queries.GetMatchesByCompetitionId;
+using Matches.Application.Matches.Queries.GetMatchesByTeamId;
 using Matches.Application.Matches.Queries.GetStandingsByCompetitionAndSeason;
 using Matches.Application.Results;
 using Matches.Domain.Entities;
@@ -40,21 +42,20 @@ public class MatchesController : ControllerBase
         var matches = await _mediator.Send(new GetMatchesQuery());
 
         if (matches.IsSuccess)
-            return new CustomActionResult<IEnumerable<Match>>(HttpStatusCode.OK, ErrorCode.OK).Success<IEnumerable<Match>>(matches.Value);
+            return new CustomActionResult<IEnumerable<MatchResponse>>(HttpStatusCode.OK, ErrorCode.OK).Success(matches.Value);
 
-        return new CustomActionResult<Match>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail<Match>(ErrorCode.NotFound, matches.ErrorMessage);
+        return new CustomActionResult<IEnumerable<MatchResponse>>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail(ErrorCode.NotFound, matches.ErrorMessage);
     }
 
-    [Authorize("read_access")]
     [HttpGet("{id:guid}")]
     public async Task<CustomActionResult> GetMatchById(Guid id)
     {
         var match = await _mediator.Send(new GetMatchByIdQuery(id));
 
         if (match.IsSuccess)
-            return new CustomActionResult<Match>(HttpStatusCode.OK, ErrorCode.OK).Success<Match>(match.Value);
+            return new CustomActionResult<MatchResponse>(HttpStatusCode.OK, ErrorCode.OK).Success(match.Value);
 
-        return new CustomActionResult<Match>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail<Match>(ErrorCode.NotFound, match.ErrorMessage);
+        return new CustomActionResult<MatchResponse>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail(ErrorCode.NotFound, match.ErrorMessage);
     }
 
     [HttpGet("competitions/{competitionId:guid}")]
@@ -63,9 +64,20 @@ public class MatchesController : ControllerBase
         var matches = await _mediator.Send(new GetMatchesByCompetitionIdQuery(competitionId));
 
         if (matches.IsSuccess)
-            return new CustomActionResult<IEnumerable<Match>>(HttpStatusCode.OK, ErrorCode.OK).Success<IEnumerable<Match>>(matches.Value);
+            return new CustomActionResult<IEnumerable<MatchResponse>>(HttpStatusCode.OK, ErrorCode.OK).Success(matches.Value);
 
-        return new CustomActionResult<Match>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail<Match>(ErrorCode.NotFound, matches.ErrorMessage);
+        return new CustomActionResult<IEnumerable<MatchResponse>>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail(ErrorCode.NotFound, matches.ErrorMessage);
+    }
+
+    [HttpGet("teams/{teamId:guid}")]
+    public async Task<CustomActionResult> GetMatchesByTeamId(Guid teamId)
+    {
+        var matches = await _mediator.Send(new GetMatchesByTeamIdQuery(teamId));
+
+        if (matches.IsSuccess)
+            return new CustomActionResult<IEnumerable<MatchResponse>>(HttpStatusCode.OK, ErrorCode.OK).Success(matches.Value);
+
+        return new CustomActionResult<IEnumerable<MatchResponse>>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail(ErrorCode.NotFound, matches.ErrorMessage);
     }
 
     [HttpGet("{id:guid}/h2h")]
@@ -74,9 +86,20 @@ public class MatchesController : ControllerBase
         var matches = await _mediator.Send(new GetH2HMatchesQuery(id));
 
         if (matches.IsSuccess)
-            return new CustomActionResult<IEnumerable<Match>>(HttpStatusCode.OK, ErrorCode.OK).Success<IEnumerable<Match>>(matches.Value);
+            return new CustomActionResult<IEnumerable<MatchResponse>>(HttpStatusCode.OK, ErrorCode.OK).Success(matches.Value);
 
-        return new CustomActionResult<Match>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail<Match>(ErrorCode.NotFound, matches.ErrorMessage);
+        return new CustomActionResult<MatchResponse>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail(ErrorCode.NotFound, matches.ErrorMessage);
+    }
+
+    [HttpGet("competition/{competitionId:guid}/standings")]
+    public async Task<CustomActionResult> GetStandingsByCompetitionId(Guid competitionId, [FromQuery] string season)
+    {
+        var standings = await _mediator.Send(new GetStandingsByCompetitionAndSeasonQuery(competitionId, season));
+
+        if (standings.IsSuccess)
+            return new CustomActionResult<IEnumerable<Ranking>>(HttpStatusCode.OK, ErrorCode.OK).Success(standings.Value);
+
+        return new CustomActionResult<IEnumerable<Ranking>>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail(ErrorCode.NotFound, standings.ErrorMessage);
     }
 
     [Authorize("write_access")]
@@ -86,20 +109,9 @@ public class MatchesController : ControllerBase
         var match = await _mediator.Send(command);
 
         if (match.IsSuccess)
-            return new CustomActionResult<Match>(HttpStatusCode.Created, ErrorCode.OK).Success<Match>(match.Value);
+            return new CustomActionResult<Match>(HttpStatusCode.Created, ErrorCode.OK).Success(match.Value);
 
         return new CustomActionResult<Match>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail<Match>(ErrorCode.NotFound, match.ErrorMessage);
-    }
-
-    [HttpGet("competition/{competitionId:guid}/standings")]
-    public async Task<CustomActionResult> GetStandingsByLeagueId(Guid competitionId, [FromQuery] string season)
-    {
-        var standings = await _mediator.Send(new GetStandingsByCompetitionAndSeasonQuery(competitionId, season));
-
-        if (standings.IsSuccess)
-            return new CustomActionResult<IEnumerable<Ranking>>(HttpStatusCode.OK, ErrorCode.OK).Success<IEnumerable<Ranking>>(standings.Value);
-
-        return new CustomActionResult<IEnumerable<Ranking>>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail<Ranking>(ErrorCode.NotFound, standings.ErrorMessage);
     }
 
     [Authorize("write_access")]
@@ -114,10 +126,11 @@ public class MatchesController : ControllerBase
         return new CustomActionResult(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail(ErrorCode.NotFound, result.ErrorMessage);
     }
 
+    [Authorize("write_access")]
     [HttpPost("competitions/{competitionId:guid}/import")]
-    public async Task<CustomActionResult> ImportMatches(Guid competitionId, [FromQuery] string season)
+    public async Task<CustomActionResult> ImportMatches(Guid competitionId, [FromQuery] string season, IFormFile file)
     {
-        var result = await _mediator.Send(new ImportMatchesCommand(competitionId, season));
+        var result = await _mediator.Send(new ImportMatchesCommand(competitionId, season, file));
 
         if (result.IsSuccess)
             return new CustomActionResult<int>(HttpStatusCode.OK, ErrorCode.OK).Success<int>(result.Value);

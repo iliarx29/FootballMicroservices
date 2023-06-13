@@ -3,7 +3,7 @@ using Auth.Application.Users.Queries;
 using Auth.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc; 
+using Microsoft.AspNetCore.Mvc;
 using static Duende.IdentityServer.IdentityServerConstants;
 
 namespace Auth.WebApi.Controllers;

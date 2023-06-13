@@ -1,5 +1,4 @@
 ﻿using Auth.Application.Results;
-using Auth.Application.Users.Common;
 using Auth.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;

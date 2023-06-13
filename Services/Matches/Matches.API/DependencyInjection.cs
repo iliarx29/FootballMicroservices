@@ -14,8 +14,10 @@ public static class DependencyInjection
         })
         .AddJwtBearer(opt =>
         {
-            opt.Authority = "https://localhost:7191";
+            opt.Authority = "http://localhost:5000";
             opt.Audience = "Matches";
+
+            opt.RequireHttpsMetadata = false;
         });
 
         services.AddAuthorization(options =>

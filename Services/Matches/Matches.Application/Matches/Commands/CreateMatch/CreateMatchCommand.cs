@@ -15,5 +15,5 @@ public record CreateMatchCommand(
     int? Matchday,
     string? Group,
     string Stage,
-    List<Guid>? HomePlayers,
-    List<Guid>? AwayPlayers) : IRequest<Result<Match>>;
+    List<Guid> HomePlayers,
+    List<Guid> AwayPlayers) : IRequest<Result<Match>>;
