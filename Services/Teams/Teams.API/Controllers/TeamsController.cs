@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 using Teams.API.Common;
 using Teams.Domain.Interfaces;
 using Teams.Domain.Models;
+using IdentityModel;
+using System.Net;
+using IdentityModel.Client;
 
 namespace Teams.API.Controllers;
 
@@ -94,5 +96,18 @@ public class TeamsController : ControllerBase
 
         return new CustomActionResult<object>(HttpStatusCode.OK, new { CountOfAddedTeams = result.Value });
 
+    }
+
+    [HttpGet("config")]
+    public async Task<IActionResult> Config()
+    {
+        var client = new HttpClient();
+        DiscoveryDocumentResponse disco = await client.GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest
+        {
+            Address = "http://host.docker.internal:5000",
+            Policy = { RequireHttps = false }
+        });
+
+        return Ok(disco);
     }
 }

@@ -58,7 +58,17 @@ public static class IdentityServerSettings
                 ClientId = "postman",
                 AllowedGrantTypes = new[] { GrantType.AuthorizationCode },
                 RequireClientSecret = false,
-                RedirectUris = new[] { "urn:ietf:wg:oauth:2.0:oob" },
+                RedirectUris = new[]
+                { 
+                    /*"urn:ietf:wg:oauth:2.0:oob"*/
+                    "https://localhost:5001/identity/account/login",
+                    "http://localhost:5000/identity/account/login"
+                },
+                PostLogoutRedirectUris = new []
+                {
+                    "https://localhost:5001/signout-callback-oidc",
+                    "http://localhost:5000/signout-callback-oidc"
+                },
                 AllowedScopes = new []
                 {   "openid",
                     "profile",
@@ -71,7 +81,7 @@ public static class IdentityServerSettings
                     "teams.readaccess",
                     "teams.writeaccess"
                 },
-                AlwaysIncludeUserClaimsInIdToken = true,
+                //AlwaysIncludeUserClaimsInIdToken = true,
                 AllowOfflineAccess = true,
                 RefreshTokenExpiration = TokenExpiration.Absolute,
                 RefreshTokenUsage = TokenUsage.OneTimeOnly,

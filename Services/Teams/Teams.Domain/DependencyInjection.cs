@@ -21,7 +21,7 @@ public static class DependencyInjection
         {
             x.AddBus(_ => Bus.Factory.CreateUsingRabbitMq(config =>
             {
-                config.Host("localhost", h =>
+                config.Host("my-rabbitmq", h =>
                 {
                     h.Username("guest");
                     h.Password("guest");

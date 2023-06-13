@@ -14,10 +14,9 @@ public static class DependencyInjection
         })
         .AddJwtBearer(opt =>
         {
-            opt.Authority = "http://localhost:5000";
-            opt.Audience = "Matches";
-
+            opt.Authority = "http://host.docker.internal:5000";
             opt.RequireHttpsMetadata = false;
+            opt.Audience = "Matches";
         });
 
         services.AddAuthorization(options =>
