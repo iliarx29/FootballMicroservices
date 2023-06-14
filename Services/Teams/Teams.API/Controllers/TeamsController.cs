@@ -97,17 +97,4 @@ public class TeamsController : ControllerBase
         return new CustomActionResult<object>(HttpStatusCode.OK, new { CountOfAddedTeams = result.Value });
 
     }
-
-    [HttpGet("config")]
-    public async Task<IActionResult> Config()
-    {
-        var client = new HttpClient();
-        DiscoveryDocumentResponse disco = await client.GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest
-        {
-            Address = "http://host.docker.internal:5000",
-            Policy = { RequireHttps = false }
-        });
-
-        return Ok(disco);
-    }
 }

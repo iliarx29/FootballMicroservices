@@ -60,7 +60,6 @@ public static class IdentityServerSettings
                 RequireClientSecret = false,
                 RedirectUris = new[]
                 { 
-                    /*"urn:ietf:wg:oauth:2.0:oob"*/
                     "https://localhost:5001/identity/account/login",
                     "http://localhost:5000/identity/account/login"
                 },
@@ -81,7 +80,6 @@ public static class IdentityServerSettings
                     "teams.readaccess",
                     "teams.writeaccess"
                 },
-                //AlwaysIncludeUserClaimsInIdToken = true,
                 AllowOfflineAccess = true,
                 RefreshTokenExpiration = TokenExpiration.Absolute,
                 RefreshTokenUsage = TokenUsage.OneTimeOnly,
