@@ -20,13 +20,9 @@ public static class DependencyInjection
         })
         .AddJwtBearer(opt =>
         {
-            opt.Authority = "http://localhost:5000";
-            //opt.Audience = "Teams";
-            opt.MetadataAddress = "http://localhost:5000/.well-known/openid-configuration";
+            opt.Authority = "http://host.docker.internal:5000";
             opt.RequireHttpsMetadata = false;
-
-            opt.TokenValidationParameters = new() { ValidateAudience = false, ValidateIssuer = false };
-
+            opt.Audience = "Teams";
         });
 
         services.AddAuthorization(options =>

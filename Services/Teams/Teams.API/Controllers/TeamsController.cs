@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 using Teams.API.Common;
 using Teams.Domain.Interfaces;
 using Teams.Domain.Models;
+using IdentityModel;
+using System.Net;
+using IdentityModel.Client;
 
 namespace Teams.API.Controllers;
 

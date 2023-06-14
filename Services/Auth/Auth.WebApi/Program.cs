@@ -16,7 +16,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-//DatabaseInitializer.PopulateIdentityServer(app, builder.Configuration);
+DatabaseInitializer.PopulateIdentityServer(app, builder.Configuration);
 
 if (app.Environment.IsDevelopment())
 {

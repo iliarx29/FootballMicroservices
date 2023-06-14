@@ -58,7 +58,7 @@ public static class DependencyInjection
             options.Events.RaiseFailureEvents = true;
             options.Events.RaiseErrorEvents = true;
 
-            options.IssuerUri = "http://localhost:5000";
+            options.IssuerUri = "http://host.docker.internal:5000";
         })
         .AddConfigurationStore(options =>
             options.ConfigureDbContext = builder => builder.UseNpgsql(configuration.GetConnectionString("DefaultConnection"), sql =>

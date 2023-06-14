@@ -1,0 +1,66 @@
+version: '3.4' 
+
+services:
+  matches.api:
+    image: ${DOCKER_REGISTRY-}matchesapi
+    build:
+      context: .
+      dockerfile: Services/Matches/Matches.API/Dockerfile
+
+  teams.api:
+    image: ${DOCKER_REGISTRY-}teamsapi
+    build:
+      context: .
+      dockerfile: Services/Teams/Teams.API/Dockerfile
+
+      
+  auth.webapi:
+    image: ${DOCKER_REGISTRY-}authwebapi
+    build:
+      context: .
+      dockerfile: Services/Auth/Auth.WebApi/Dockerfile
+
+
+  postgres:
+    image: postgres
+    container_name: my-postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root
+    volumes:
+    - postgres_volume:/var/lib/postgresql/data
+
+
+  rabbitmq:
+    image: rabbitmq:3.12.0-management
+    container_name: my-rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672 
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+    - rabbitmq_volume:/var/lib/rabbitmq/data
+
+
+  redis:
+    image: redis
+    container_name: my-redis
+    ports:
+      - 6319:6379
+    volumes:
+    - redis_volume:/var/lib/redis/data
+
+  
+
+volumes:
+  postgres_volume:
+    external: true
+  rabbitmq_volume:
+  redis_volume:  
+
+
+

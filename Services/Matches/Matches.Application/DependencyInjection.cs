@@ -41,7 +41,7 @@ public static class DependencyInjection
 
             x.UsingRabbitMq((context, cfg) =>
             {
-                cfg.Host("localhost", h =>
+                cfg.Host("my-rabbitmq", h =>
                 {
                     h.Username("guest");
                     h.Password("guest");
