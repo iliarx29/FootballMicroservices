@@ -7,13 +7,13 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "https://localhost:6001;http://localhost:6000",
+      "applicationUrl": "https://localhost:7001;http://localhost:7000",
       "http": {
         "commandName": "Project",
         "dotnetRunMessages": true,
         "launchBrowser": false,
         "launchUrl": "swagger",
-        "applicationUrl": "http://localhost:6000",
+        "applicationUrl": "http://localhost:7000",
         "environmentVariables": {
           "ASPNETCORE_ENVIRONMENT": "Development"
         }

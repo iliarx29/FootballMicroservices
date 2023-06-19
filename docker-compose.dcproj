@@ -4,6 +4,7 @@
     <ProjectVersion>2.1</ProjectVersion>
     <DockerTargetOS>Linux</DockerTargetOS>
     <ProjectGuid>045e4d74-0f4c-4094-8a72-17b51a4161d2</ProjectGuid>
+    <DockerComposeProjectName>footballmicroservices</DockerComposeProjectName>
   </PropertyGroup>
   <ItemGroup>
     <None Include="docker-compose.override.yml">

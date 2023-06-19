@@ -8,7 +8,7 @@ public record UpdateMatchCommand(
     Guid AwayTeamId,
     int? HomeGoals,
     int? AwayGoals,
-    DateTime? MatchDate,
+    DateTime MatchDate,
     Guid CompetitionId,
     string Season,
     string Status,

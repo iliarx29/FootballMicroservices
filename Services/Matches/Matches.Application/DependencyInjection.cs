@@ -1,13 +1,19 @@
-﻿using FluentValidation;
+﻿using Elasticsearch.Net;
+using FluentValidation;
 using Hangfire;
 using Hangfire.PostgreSql;
 using MassTransit;
 using Matches.Application.Behaviors;
 using Matches.Application.Consumers;
 using Matches.Application.Mappings;
+using Matches.Application.Matches.Queries.GetStandingsByCompetitionAndSeason;
+using Matches.Application.Models;
+using Matches.Application.Options;
+using Matches.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Nest;
 
 namespace Matches.Application;
 public static class DependencyInjection
@@ -55,6 +61,21 @@ public static class DependencyInjection
         {
             var connection = configuration.GetConnectionString("Redis");
             redisOptions.Configuration = connection;
+        });
+
+        services.Configure<ElasticSearchOptions>(configuration.GetSection(ElasticSearchOptions.ElasticSearch));
+
+        services.AddSingleton<IElasticClient>(x =>
+        {
+            ElasticSearchOptions options = configuration.GetSection(ElasticSearchOptions.ElasticSearch).Get<ElasticSearchOptions>()!;
+
+            var pool = new SingleNodeConnectionPool(new Uri(options.Connection));
+            var settings = new ConnectionSettings(pool)
+                .DefaultIndex("default-index")
+                .DefaultMappingFor<MatchSearchResponse>(i => i.IndexName(options.IndexName))
+                .EnableApiVersioningHeader();
+
+            return new ElasticClient(settings);
         });
 
         return services;
