@@ -47,7 +47,7 @@ public class ImportMatchesCommandHandler : IRequestHandler<ImportMatchesCommand,
         var worksheet = excelPackage.Workbook.Worksheets[0];
         var nEndRow = worksheet.Dimension.End.Row;
 
-        var matchesCount = await _context.Matches.CountAsync(x => x.CompetitionId == competitionId);
+        var matchesCount = await _context.Matches.CountAsync(x => x.CompetitionId == competitionId && x.Season == season);
 
         var numbOfMatchesAdded = 0;
         List<Match> matches = new();

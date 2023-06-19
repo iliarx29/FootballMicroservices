@@ -1,6 +1,6 @@
 ﻿using Matches.Domain.Entities;
 
-namespace Matches.Application.Matches.Common.Responses;
+namespace Matches.Application.Models;
 public class MatchResponse
 {
     public Guid Id { get; set; }

@@ -1,4 +1,4 @@
-﻿using Matches.Application.Matches.Common.Responses;
+﻿using Matches.Application.Models;
 using Matches.Application.Results;
 using MediatR;
 

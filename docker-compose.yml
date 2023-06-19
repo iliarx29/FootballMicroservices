@@ -3,22 +3,34 @@ version: '3.4'
 services:
   matches.api:
     image: ${DOCKER_REGISTRY-}matchesapi
+    container_name: matchesapi
     build:
       context: .
       dockerfile: Services/Matches/Matches.API/Dockerfile
+    depends_on:
+      - postgres
+      - rabbitmq
+      - redis 
 
   teams.api:
     image: ${DOCKER_REGISTRY-}teamsapi
+    container_name: teamsapi
     build:
       context: .
       dockerfile: Services/Teams/Teams.API/Dockerfile
+    depends_on:
+      - postgres
+      - rabbitmq
 
       
   auth.webapi:
     image: ${DOCKER_REGISTRY-}authwebapi
+    container_name: authwebapi
     build:
       context: .
       dockerfile: Services/Auth/Auth.WebApi/Dockerfile
+    depends_on:
+      - postgres
 
 
   postgres:
@@ -54,13 +66,39 @@ services:
     volumes:
     - redis_volume:/var/lib/redis/data
 
-  
 
+  elasticsearch:
+    image: elasticsearch:8.8.0
+    container_name: my-elasticsearch
+    volumes: 
+      - elasticsearch_volume:/var/lib/elasticsearch/data"
+    ports:
+      - 9200:9200
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      
+
+  kibana:
+    image: kibana:8.8.0
+    container_name: my-kibana
+    ports: 
+      - 5601:5601
+    environment:
+      - ELASTICSEARCH_HOSTS=["http://my-elasticsearch:9200"]
+    volumes:
+      - "kibana_volume:/var/lib/kibana/data"   
+    depends_on:
+      - elasticsearch
+
+  
 volumes:
   postgres_volume:
     external: true
   rabbitmq_volume:
   redis_volume:  
+  elasticsearch_volume:
+  kibana_volume:
 
 
 

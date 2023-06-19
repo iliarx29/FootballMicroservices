@@ -5,18 +5,21 @@ using Matches.Application.Matches.Commands.CreateMatch;
 using Matches.Application.Matches.Commands.DeleteMatch;
 using Matches.Application.Matches.Commands.ImportMatches;
 using Matches.Application.Matches.Commands.UpdateMatch;
-using Matches.Application.Matches.Common.Responses;
+using Matches.Application.Matches.Queries.AutocompleteSearch;
 using Matches.Application.Matches.Queries.GetH2HMatches;
 using Matches.Application.Matches.Queries.GetMatchById;
 using Matches.Application.Matches.Queries.GetMatches;
 using Matches.Application.Matches.Queries.GetMatchesByCompetitionId;
 using Matches.Application.Matches.Queries.GetMatchesByTeamId;
 using Matches.Application.Matches.Queries.GetStandingsByCompetitionAndSeason;
+using Matches.Application.Matches.Queries.SearchMatches;
+using Matches.Application.Models;
 using Matches.Application.Results;
 using Matches.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using StackExchange.Redis;
 using System.Net;
 
 namespace Matches.API.Controllers;
@@ -156,5 +159,23 @@ public class MatchesController : ControllerBase
     {
         _recurringJobManager.AddOrUpdate("importJob", () => _importJob.ImportMatches(competitionId, season), Cron.Daily(19));
         return NoContent();
+    }
+
+    [HttpGet("search/{value}")]
+    public async Task<IActionResult> Search(string value)
+    {
+        var searchQuery = new SearchMatchesQuery(value);
+
+        var response = await _mediator.Send(searchQuery);
+
+        return Ok(response);
+    }
+
+    [HttpGet("autocomplete")]
+    public async Task<IActionResult> Autocomplete([FromQuery]string value)
+    {
+        var response = await _mediator.Send(new AutocompleteSearchQuery(value));
+
+        return Ok(response);
     }
 }
