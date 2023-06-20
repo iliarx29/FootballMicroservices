@@ -92,6 +92,17 @@ services:
       - elasticsearch
 
   
+  gateway.api:
+    image: ${DOCKER_REGISTRY-}gatewayapi
+    container_name: gatewayapi
+    build:
+      context: .
+      dockerfile: ApiGateways/Gateway.API/Dockerfile
+    depends_on:
+      - matches.api
+      - teams.api
+      - auth.webapi
+
 volumes:
   postgres_volume:
     external: true
@@ -99,6 +110,3 @@ volumes:
   redis_volume:  
   elasticsearch_volume:
   kibana_volume:
-
-
-

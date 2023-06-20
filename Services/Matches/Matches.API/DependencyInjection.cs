@@ -14,7 +14,7 @@ public static class DependencyInjection
         })
         .AddJwtBearer(opt =>
         {
-            opt.Authority = "http://host.docker.internal:5000";
+            opt.Authority = "http://authwebapi:80";
             opt.RequireHttpsMetadata = false;
             opt.Audience = "Matches";
         });

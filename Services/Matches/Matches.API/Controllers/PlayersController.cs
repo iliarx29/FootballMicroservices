@@ -26,9 +26,9 @@ public class PlayersController : ControllerBase
         var players = await _mediator.Send(new GetPlayersQuery());
 
         if (players.IsSuccess)
-            return new CustomActionResult<IEnumerable<Player>>(HttpStatusCode.NotFound, ErrorCode.NotFound).Success<IEnumerable<Player>>(players.Value);
+            return new CustomActionResult<IEnumerable<Player>>(HttpStatusCode.OK, ErrorCode.OK).Success(players.Value);
 
-        return new CustomActionResult<Player>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail<Player>(ErrorCode.NotFound, players.ErrorMessage);
+        return new CustomActionResult<IEnumerable<Player>>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail(ErrorCode.NotFound, players.ErrorMessage);
     }
 
     [HttpGet("{id:guid}")]
@@ -37,9 +37,9 @@ public class PlayersController : ControllerBase
         var player = await _mediator.Send(new GetPlayerByIdQuery(id));
 
         if (player.IsSuccess)
-            return new CustomActionResult<Player>(HttpStatusCode.OK, ErrorCode.OK).Success<Player>(player.Value);
+            return new CustomActionResult<Player>(HttpStatusCode.OK, ErrorCode.OK).Success(player.Value);
 
-        return new CustomActionResult<Player>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail<Player>(ErrorCode.NotFound, player.ErrorMessage);
+        return new CustomActionResult<Player>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail(ErrorCode.NotFound, player.ErrorMessage);
     }
 
     [HttpGet("teams/{teamId:guid}")]
@@ -48,12 +48,12 @@ public class PlayersController : ControllerBase
         var players = await _mediator.Send(new GetPlayersByTeamIdQuery(teamId));
 
         if (players.IsSuccess)
-            return new CustomActionResult<IEnumerable<Player>>(HttpStatusCode.OK, ErrorCode.OK).Success<IEnumerable<Player>>(players.Value);
+            return new CustomActionResult<IEnumerable<Player>>(HttpStatusCode.OK, ErrorCode.OK).Success(players.Value);
 
-        return new CustomActionResult<Player>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail<Player>(ErrorCode.NotFound, players.ErrorMessage);
+        return new CustomActionResult<IEnumerable<Player>>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail(ErrorCode.NotFound, players.ErrorMessage);
     }
 
-    //[Authorize("write_access")]
+    [Authorize("write_access")]
     [HttpPost]
     public async Task<IActionResult> CreatePlayer(CreatePlayerCommand command)
     {
@@ -62,15 +62,15 @@ public class PlayersController : ControllerBase
         return CreatedAtAction(nameof(GetPlayerById), new { player.Value.Id }, player);
     }
 
-    //[Authorize("write_access")]
+    [Authorize("write_access")]
     [HttpPost("importPlayers")]
     public async Task<CustomActionResult> ImportPlayers()
     {
         var res = await _mediator.Send(new ImportPlayersCommand());
 
         if (res.IsSuccess)
-            return new CustomActionResult<int>(HttpStatusCode.OK, ErrorCode.OK).Success<int>(res.Value);
+            return new CustomActionResult<int>(HttpStatusCode.OK, ErrorCode.OK).Success(res.Value);
 
-        return new CustomActionResult<int>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail<int>(ErrorCode.NotFound, res.ErrorMessage);
+        return new CustomActionResult<int>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail(ErrorCode.NotFound, res.ErrorMessage);
     }
 }
