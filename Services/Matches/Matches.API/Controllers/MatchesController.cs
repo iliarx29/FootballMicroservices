@@ -19,7 +19,6 @@ using Matches.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using StackExchange.Redis;
 using System.Net;
 
 namespace Matches.API.Controllers;
@@ -94,7 +93,7 @@ public class MatchesController : ControllerBase
         return new CustomActionResult<MatchResponse>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail(ErrorCode.NotFound, matches.ErrorMessage);
     }
 
-    [HttpGet("competition/{competitionId:guid}/standings")]
+    [HttpGet("competitions/{competitionId:guid}/standings")]
     public async Task<CustomActionResult> GetStandingsByCompetitionId(Guid competitionId, [FromQuery] string season)
     {
         var standings = await _mediator.Send(new GetStandingsByCompetitionAndSeasonQuery(competitionId, season));

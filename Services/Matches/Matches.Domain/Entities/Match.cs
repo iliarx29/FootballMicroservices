@@ -13,7 +13,7 @@ public class Match
 
     public int? HomeGoals { get; set; }
     public int? AwayGoals { get; set; }
-    public DateTime? MatchDate { get; set; }
+    public DateTime MatchDate { get; set; }
 
     public Guid CompetitionId { get; set; } //FK
     public string Season { get; set; } = string.Empty;

@@ -95,7 +95,7 @@ public class CompetitionsController : ControllerBase
         if (!result.IsSuccess)
             return new CustomActionResult<object>(HttpStatusCode.NotFound, result.ErrorMessage);
 
-        return new CustomActionResult<object>(HttpStatusCode.OK, new { CountOfAddedTeamToCompetition = result.Value });
+        return new CustomActionResult<object>(HttpStatusCode.OK, new { CountOfAddedTeamsToCompetition = result.Value });
     }
 
     [Authorize("write_access")]
@@ -107,6 +107,6 @@ public class CompetitionsController : ControllerBase
         if (!result.IsSuccess)
             return new CustomActionResult<object>(HttpStatusCode.NotFound, result.ErrorMessage);
 
-        return new CustomActionResult<object>(HttpStatusCode.OK, new { CountOfAddedTeamToCompetition = result.Value });
+        return new CustomActionResult<object>(HttpStatusCode.OK, new { CountOfDeletedTeamsFromCompetition = result.Value });
     }
 }

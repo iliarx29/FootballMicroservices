@@ -1,62 +1,100 @@
 {
   "Routes": [
     {
-      "DownstreamPathTemplate": "/api/leagues",
-      "DownstreamScheme": "https",
+      "DownstreamPathTemplate": "/api/competitions",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7057
+          "Host": "teamsapi",
+          "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/leagues",
-      "UpstreamHttpMethod": [ "Get" ],
-      "Key": "leagues"
+      "UpstreamPathTemplate": "/competitions",
+      "UpstreamHttpMethod": [ "Get", "Post" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/competitions/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "teamsapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/competitions/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
     },
     {
       "DownstreamPathTemplate": "/api/teams",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7057
+          "Host": "teamsapi",
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/teams",
-      "UpstreamHttpMethod": [ "Get" ],
-      "Key": "teams"
+      "UpstreamHttpMethod": [ "Get", "Post" ]
     },
     {
-      "DownstreamPathTemplate": "/api/matches/leagues/{leagueId}/standings",
-      "DownstreamScheme": "https",
+      "DownstreamPathTemplate": "/api/teams/{everything}",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7118
+          "Host": "teamsapi",
+          "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/leagues/{leagueId}/standings"
+      "UpstreamPathTemplate": "/teams/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
     },
     {
-      "DownstreamPathTemplate": "/api/matches/leagues/{leagueId}",
-      "DownstreamScheme": "https",
+      "DownstreamPathTemplate": "/api/matches",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7118
+          "Host": "matchesapi",
+          "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/leagues/{leagueId}/matches"
-    }
-  ],
-  "Aggregates": [
+      "UpstreamPathTemplate": "/matches",
+      "UpstreamHttpMethod": [ "Get", "Post" ]
+    },
     {
-      "RouteKeys": [
-        "leagues",
-        "teams"
+      "DownstreamPathTemplate": "/api/matches/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "matchesapi",
+          "Port": 80
+        }
       ],
-      "UpstreamPathTemplate": "/leagues-teams",
-      "Aggregator": "LeagueTeamsAggregator"
+      "UpstreamPathTemplate": "/matches/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/players",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "matchesapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/players",
+      "UpstreamHttpMethod": [ "Get", "Post" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/players/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "matchesapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/players/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
     }
   ]
 }

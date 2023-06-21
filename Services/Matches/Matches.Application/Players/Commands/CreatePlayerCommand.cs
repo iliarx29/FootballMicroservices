@@ -11,7 +11,7 @@ public record CreatePlayerCommand(
     string CountryName,
     Guid? TeamId,
     int? ShirtNumber,
-    DateTime? DateOfBirth,
+    DateTime DateOfBirth,
     string Position) : IRequest<Result<Player>>;
 
 public class CreatePlayerCommandHandler : IRequestHandler<CreatePlayerCommand, Result<Player>>
@@ -29,7 +29,7 @@ public class CreatePlayerCommandHandler : IRequestHandler<CreatePlayerCommand, R
         {
             Name = command.Name,
             CountryName = command.CountryName,
-            DateOfBirth = command.DateOfBirth,
+            DateOfBirth = DateTime.SpecifyKind(command.DateOfBirth, DateTimeKind.Utc),
             Position = Enum.Parse<Position>(command.Position),
             ShirtNumber = command.ShirtNumber,
             TeamId = command.TeamId

@@ -6,7 +6,8 @@
       "serviceActions": {
         "matches.api": "StartDebugging",
         "teams.api": "StartDebugging",
-        "auth.webapi": "StartDebugging"
+        "auth.webapi": "StartDebugging",
+        "gateway.api": "StartDebugging"
       }
     }
   }
