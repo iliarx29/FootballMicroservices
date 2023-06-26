@@ -161,13 +161,16 @@ public class MatchesController : ControllerBase
     }
 
     [HttpGet("search/{value}")]
-    public async Task<IActionResult> Search(string value)
+    public async Task<CustomActionResult> Search(string value)
     {
         var searchQuery = new SearchMatchesQuery(value);
 
-        var response = await _mediator.Send(searchQuery);
+        var result = await _mediator.Send(searchQuery);
 
-        return Ok(response);
+        if (result.IsSuccess)
+            return new CustomActionResult<List<MatchSearchResponse>>(HttpStatusCode.OK, ErrorCode.OK).Success(result.Value);
+
+        return new CustomActionResult<List<MatchSearchResponse>>(HttpStatusCode.NotFound, ErrorCode.NotFound).Fail(ErrorCode.NotFound, result.ErrorMessage);
     }
 
     [HttpGet("autocomplete")]

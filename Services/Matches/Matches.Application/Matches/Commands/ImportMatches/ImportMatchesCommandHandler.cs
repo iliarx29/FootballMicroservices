@@ -11,10 +11,12 @@ namespace Matches.Application.Matches.Commands.ImportMatches;
 public class ImportMatchesCommandHandler : IRequestHandler<ImportMatchesCommand, Result<int>>
 {
     private readonly IMatchesDbContext _context;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public ImportMatchesCommandHandler(IMatchesDbContext context)
+    public ImportMatchesCommandHandler(IMatchesDbContext context, IUnitOfWork unitOfWork)
     {
         _context = context;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<Result<int>> Handle(ImportMatchesCommand request, CancellationToken cancellationToken)
@@ -85,7 +87,7 @@ public class ImportMatchesCommandHandler : IRequestHandler<ImportMatchesCommand,
 
         await _context.Matches.AddRangeAsync(matches);
 
-        await _context.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync();
 
         return numbOfMatchesAdded;
     }

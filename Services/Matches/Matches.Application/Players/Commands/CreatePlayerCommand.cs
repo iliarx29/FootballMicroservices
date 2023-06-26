@@ -17,10 +17,12 @@ public record CreatePlayerCommand(
 public class CreatePlayerCommandHandler : IRequestHandler<CreatePlayerCommand, Result<Player>>
 {
     private readonly IMatchesDbContext _context;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public CreatePlayerCommandHandler(IMatchesDbContext context)
+    public CreatePlayerCommandHandler(IMatchesDbContext context, IUnitOfWork unitOfWork)
     {
         _context = context;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<Result<Player>> Handle(CreatePlayerCommand command, CancellationToken cancellationToken)
@@ -36,7 +38,7 @@ public class CreatePlayerCommandHandler : IRequestHandler<CreatePlayerCommand, R
         };
 
         await _context.Players.AddAsync(player, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result<Player>.Success(player);
     }

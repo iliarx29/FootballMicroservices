@@ -8,5 +8,5 @@ public interface IMatchesDbContext
     DbSet<Player> Players { get; set; }
     DbSet<Team> Teams { get; set; }
 
-    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+    //Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

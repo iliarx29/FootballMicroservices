@@ -1,20 +1,22 @@
-﻿using Matches.Application.Models;
+﻿using Matches.Application.Abstractions;
+using Matches.Application.Models;
+using Matches.Application.Results;
 using MediatR;
 using Nest;
 
 namespace Matches.Application.Matches.Queries.SearchMatches;
-internal class SearchMatchesQueryHandler : IRequestHandler<SearchMatchesQuery, List<MatchSearchResponse>>
+public class SearchMatchesQueryHandler : IRequestHandler<SearchMatchesQuery, Result<List<MatchSearchResponse>>>
 {
-    private readonly IElasticClient _elasticClient;
+    private readonly IElasticService _elasticService;
 
-    public SearchMatchesQueryHandler(IElasticClient elasticClient)
+    public SearchMatchesQueryHandler(IElasticService elasticClient)
     {
-        _elasticClient = elasticClient;
+        _elasticService = elasticClient;
     }
 
-    public async Task<List<MatchSearchResponse>> Handle(SearchMatchesQuery request, CancellationToken cancellationToken)
+    public async Task<Result<List<MatchSearchResponse>>> Handle(SearchMatchesQuery request, CancellationToken cancellationToken)
     {
-        var response = await _elasticClient.SearchAsync<MatchSearchResponse>(s => s
+        var response = await _elasticService.SearchAsync<MatchSearchResponse>(s => s
             .Query(q => q
                 .MultiMatch(a => a
                     .Fields(f => f.Field(m => m.HomeTeamName).Field(m => m.AwayTeamName))
@@ -24,11 +26,12 @@ internal class SearchMatchesQueryHandler : IRequestHandler<SearchMatchesQuery, L
             .Sort(sort => sort.Descending(p => p.MatchDate))
             .Size(10), cancellationToken);
 
-        if (response is not null)
+        if (response is null)
         {
-            return response.Documents.ToList();
+            return Result<List<MatchSearchResponse>>.Error(ErrorCode.NotFound, "Matches not found");
         }
 
-        return new();
+        var result = response.Documents.ToList();
+        return Result<List<MatchSearchResponse>>.Success(result);
     }
 }

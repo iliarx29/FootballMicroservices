@@ -7,9 +7,11 @@ namespace Matches.Application.Consumers;
 public class TeamDeletedEventConsumer : IConsumer<TeamDeletedEvent>
 {
     private readonly IMatchesDbContext _dbContext;
-    public TeamDeletedEventConsumer(IMatchesDbContext dbContext)
+    private readonly IUnitOfWork _unitOfWork;
+    public TeamDeletedEventConsumer(IMatchesDbContext dbContext, IUnitOfWork unitOfWork)
     {
         _dbContext = dbContext;
+        _unitOfWork = unitOfWork;
     }
     public async Task Consume(ConsumeContext<TeamDeletedEvent> context)
     {
@@ -25,6 +27,6 @@ public class TeamDeletedEventConsumer : IConsumer<TeamDeletedEvent>
 
         _dbContext.Teams.Remove(team);
 
-        await _dbContext.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync();
     }
 }

@@ -1,5 +1,5 @@
 ﻿namespace Matches.Application.Options;
-internal class ElasticSearchOptions
+public class ElasticSearchOptions
 {
     public const string ElasticSearch = "ElasticSearch";
 

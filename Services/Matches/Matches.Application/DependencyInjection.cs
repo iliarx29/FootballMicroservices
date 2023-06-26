@@ -3,12 +3,14 @@ using FluentValidation;
 using Hangfire;
 using Hangfire.PostgreSql;
 using MassTransit;
+using Matches.Application.Abstractions;
 using Matches.Application.Behaviors;
 using Matches.Application.Consumers;
 using Matches.Application.Mappings;
 using Matches.Application.Matches.Queries.GetStandingsByCompetitionAndSeason;
 using Matches.Application.Models;
 using Matches.Application.Options;
+using Matches.Application.Services;
 using Matches.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Configuration;
@@ -63,6 +65,8 @@ public static class DependencyInjection
             redisOptions.Configuration = connection;
         });
 
+        services.AddScoped<IRedisService, RedisService>();
+
         services.Configure<ElasticSearchOptions>(configuration.GetSection(ElasticSearchOptions.ElasticSearch));
 
         services.AddSingleton<IElasticClient>(x =>
@@ -77,6 +81,8 @@ public static class DependencyInjection
 
             return new ElasticClient(settings);
         });
+
+        services.AddScoped<IElasticService, ElasticService>();
 
         return services;
     }

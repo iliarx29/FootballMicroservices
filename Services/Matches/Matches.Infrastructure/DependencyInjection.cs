@@ -1,4 +1,6 @@
 ﻿using Matches.Application.Abstractions;
+using Matches.Infrastructure.Mappings;
+using Matches.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,7 +12,15 @@ public static class DependencyInjection
     {
         services.AddDbContext<MatchesDbContext>(options => options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
-        services.AddScoped<IMatchesDbContext, MatchesDbContext>();
+        services.AddScoped<IMatchesDbContext>(sp =>
+            sp.GetRequiredService<MatchesDbContext>());
+
+        services.AddScoped<IUnitOfWork>(sp =>
+            sp.GetRequiredService<MatchesDbContext>());
+
+        services.AddScoped<IMatchesRepository, MatchesRepository>();
+
+        services.AddAutoMapper(typeof(MappingProfile));
 
         return services;
     }

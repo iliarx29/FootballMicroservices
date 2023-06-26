@@ -9,11 +9,13 @@ public class TeamsImportedEventConsumer : IConsumer<TeamsImportedEvent>
 {
     private readonly IMatchesDbContext _dbContext;
     private readonly IMapper _mapper;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public TeamsImportedEventConsumer(IMatchesDbContext dbContext, IMapper mapper)
+    public TeamsImportedEventConsumer(IMatchesDbContext dbContext, IMapper mapper, IUnitOfWork unitOfWork)
     {
         _dbContext = dbContext;
         _mapper = mapper;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task Consume(ConsumeContext<TeamsImportedEvent> context)
@@ -23,6 +25,6 @@ public class TeamsImportedEventConsumer : IConsumer<TeamsImportedEvent>
         var teams = _mapper.Map<List<Team>>(data.CreatedTeams);
 
         _dbContext.Teams.AddRange(teams);
-        await _dbContext.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync();
     }
 }
