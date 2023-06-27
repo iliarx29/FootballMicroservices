@@ -8,35 +8,38 @@ using Teams.Domain.Models;
 using Teams.Domain.Results;
 using Teams.Infrastructure;
 using Teams.Infrastructure.Entities;
+using Teams.Infrastructure.Repositories.Interfaces;
 
 namespace Teams.Domain.Services;
 public class TeamService : ITeamService
 {
-    private readonly TeamsDbContext _context;
+    private readonly ITeamsRepository _teamsRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly IValidator<TeamRequest> _validator;
     private readonly IEventBus _eventBus;
 
-    public TeamService(TeamsDbContext context, IMapper mapper, IValidator<TeamRequest> validator, IEventBus eventBus)
+    public TeamService(ITeamsRepository teamsRepository, IMapper mapper, IValidator<TeamRequest> validator, IEventBus eventBus, IUnitOfWork unitOfWork)
     {
-        _context = context;
+        _teamsRepository = teamsRepository;
         _mapper = mapper;
         _validator = validator;
         _eventBus = eventBus;
+        _unitOfWork = unitOfWork;
     }
 
-    public async Task<Result<IEnumerable<TeamResponse>>> GetAllTeamsAsync()
+    public async Task<Result<List<TeamResponse>>> GetAllTeamsAsync()
     {
-        var teams = await _context.Teams.AsNoTracking().ToListAsync();
+        var teams = await _teamsRepository.GetAllTeamsAsync();
 
         var teamsResponse = _mapper.Map<List<TeamResponse>>(teams);
 
-        return Result<IEnumerable<TeamResponse>>.Success(teamsResponse);
+        return Result<List<TeamResponse>>.Success(teamsResponse);
     }
 
     public async Task<Result<TeamResponse>> GetTeamByIdAsync(Guid id)
     {
-        var team = await _context.Teams.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+        var team = await _teamsRepository.GetTeamByIdAsync(id);
 
         if (team is null)
             return Result<TeamResponse>.Error(ErrorCode.NotFound, $"Team with id: '{id}' doesn't exists.");
@@ -48,13 +51,12 @@ public class TeamService : ITeamService
 
     public async Task<Result<TeamResponse>> AddTeamAsync(TeamRequest teamRequest)
     {
-
         _validator.ValidateAndThrow(teamRequest);
 
         var team = _mapper.Map<Team>(teamRequest);
 
-        await _context.Teams.AddAsync(team);
-        await _context.SaveChangesAsync();
+        await _teamsRepository.AddTeamAsync(team);
+        await _unitOfWork.SaveChangesAsync();
 
         await _eventBus.PublishAsync(new TeamCreatedEvent
         {
@@ -71,7 +73,8 @@ public class TeamService : ITeamService
     {
         _validator.ValidateAndThrow(teamRequest);
 
-        var team = await _context.Teams.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+        var team = await _teamsRepository.GetTeamByIdAsync(id);
+
         if (team is null)
         {
             return Result.Error(ErrorCode.NotFound, $"Team with given id:'{id}' doesn't exist.");
@@ -80,22 +83,23 @@ public class TeamService : ITeamService
         team = _mapper.Map<Team>(teamRequest);
         team.Id = id;
 
-        _context.Teams.Update(team);
-        await _context.SaveChangesAsync();
+        _teamsRepository.UpdateTeam(team);
+        await _unitOfWork.SaveChangesAsync();
 
         return Result.Success();
     }
 
     public async Task<Result> DeleteTeamAsync(Guid id)
     {
-        var team = await _context.Teams.FirstOrDefaultAsync(x => x.Id == id);
+        var team = await _teamsRepository.GetTeamByIdAsync(id);
+
         if (team is null)
         {
             return Result.Error(ErrorCode.NotFound, $"Team with given id:'{id}' doesn't exist.");
         }
 
-        _context.Teams.Remove(team);
-        await _context.SaveChangesAsync();
+        _teamsRepository.DeleteTeam(team);
+        await _unitOfWork.SaveChangesAsync();
 
         await _eventBus.PublishAsync(new TeamDeletedEvent(id));
 
@@ -112,7 +116,7 @@ public class TeamService : ITeamService
         var worksheet = excelPackage.Workbook.Worksheets[0];
         var nEndRow = worksheet.Dimension.End.Row;
 
-        var teamsCount = await _context.Teams.CountAsync();
+        var teamsCount = await _teamsRepository.GetCount();
 
         var numbOfMatchesAdded = 0;
         List<Team> teams = new();
@@ -142,9 +146,9 @@ public class TeamService : ITeamService
             numbOfMatchesAdded++;
         }
 
-        await _context.AddRangeAsync(teams);
+        await _teamsRepository.AddRange(teams);
 
-        await _context.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync();
 
         TeamsImportedEvent createdTeams = new(teams.Select(x => new TeamCreatedEvent { Id = x.Id, Name = x.Name }).ToList());
 

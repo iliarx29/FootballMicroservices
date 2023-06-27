@@ -4,48 +4,39 @@ using Matches.Application.Models;
 using Matches.Application.Results;
 using Matches.Domain.Entities;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Nest;
-using Result = Matches.Application.Results.Result;
 
 namespace Matches.Application.Matches.Commands.UpdateMatch;
 public class UpdateMatchCommandHandler : IRequestHandler<UpdateMatchCommand, Result>
 {
-    private readonly IMatchesDbContext _context;
+    private readonly IMatchesRepository _matchesRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
-    private readonly IElasticClient _elasticClient;
+    private readonly IElasticService _elasticService;
 
-    public UpdateMatchCommandHandler(IMatchesDbContext context, IMapper mapper, IElasticClient elasticClient)
+    public UpdateMatchCommandHandler(IMatchesRepository matchesRepository, IMapper mapper, IElasticService elasticService, IUnitOfWork unitOfWork)
     {
-        _context = context;
+        _matchesRepository = matchesRepository;
         _mapper = mapper;
-        _elasticClient = elasticClient;
+        _elasticService = elasticService;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<Result> Handle(UpdateMatchCommand command, CancellationToken cancellationToken)
     {
-        var match = await _context.Matches.AsNoTracking().FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
+        var match = await _matchesRepository.GetMatchByIdAsync(command.Id, cancellationToken);
 
         if (match is null)
             return Result.Error(ErrorCode.NotFound, $"Match with id: '{command.Id}' not found");
 
         match = _mapper.Map<Match>(command);
 
-        _context.Matches.Update(match);
+        _matchesRepository.UpdateMatch(match);
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         var updatedMatchSearchResponse = _mapper.Map<MatchSearchResponse>(match);
 
-        //var response = await _elasticClient.UpdateAsync<MatchSearchResponse>(updatedMatchSearchResponse.Id, 
-        //        u => u.Doc(updatedMatchSearchResponse), cancellationToken);
-
-        var response = await _elasticClient.IndexDocumentAsync(updatedMatchSearchResponse, ct: cancellationToken);
-
-        if (response.IsValid)
-        {
-            Console.WriteLine($"Document with id: '{updatedMatchSearchResponse.Id}' was updated");
-        }
+        await _elasticService.AddDocument(updatedMatchSearchResponse, cancellationToken);
 
         return Result.Success();
     }

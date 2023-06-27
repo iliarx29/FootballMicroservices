@@ -1,5 +1,5 @@
-﻿using Matches.Application.Models;
-using Matches.Application.Results;
+﻿using Matches.Application.Results;
+using Matches.Domain.Entities;
 using MediatR;
 
 namespace Matches.Application.Matches.Commands.CreateMatch;
@@ -16,4 +16,4 @@ public record CreateMatchCommand(
     string? Group,
     string Stage,
     List<Guid> HomePlayers,
-    List<Guid> AwayPlayers) : IRequest<Result<MatchResponse>>;
+    List<Guid> AwayPlayers) : IRequest<Result<Match>>;

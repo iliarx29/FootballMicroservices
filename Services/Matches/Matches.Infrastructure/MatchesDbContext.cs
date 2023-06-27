@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Matches.Infrastructure;
 
-public class MatchesDbContext : DbContext, IMatchesDbContext
+public class MatchesDbContext : DbContext, IUnitOfWork, IMatchesDbContext
 {
     public MatchesDbContext(DbContextOptions<MatchesDbContext> options)
         : base(options)

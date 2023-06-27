@@ -8,10 +8,12 @@ namespace Matches.Application.Consumers;
 public class TeamCreatedEventConsumer : IConsumer<TeamCreatedEvent>
 {
     private readonly IMatchesDbContext _dbContext;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public TeamCreatedEventConsumer(IMatchesDbContext dbContext)
+    public TeamCreatedEventConsumer(IMatchesDbContext dbContext, IUnitOfWork unitOfWork)
     {
         _dbContext = dbContext;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task Consume(ConsumeContext<TeamCreatedEvent> context)
@@ -19,6 +21,6 @@ public class TeamCreatedEventConsumer : IConsumer<TeamCreatedEvent>
         var data = context.Message;
 
         await _dbContext.Teams.AddAsync(new Team { Id = data.Id, Name = data.Name });
-        await _dbContext.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync();
     }
 }

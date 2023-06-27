@@ -3,53 +3,47 @@ using Matches.Application.Abstractions;
 using Matches.Application.Models;
 using Matches.Application.Results;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
 
 namespace Matches.Application.Matches.Queries.GetMatchesByTeamId;
-public class GetMatchesByTeamIdQueryHandler : IRequestHandler<GetMatchesByTeamIdQuery, Result<IEnumerable<MatchResponse>>>
+public class GetMatchesByTeamIdQueryHandler : IRequestHandler<GetMatchesByTeamIdQuery, Result<List<MatchResponse>>>
 {
-    private readonly IMatchesDbContext _context;
+    private readonly IMatchesRepository _matchesRepository;
     private readonly IMapper _mapper;
-    private readonly IDistributedCache _distributedCache;
+    private readonly IRedisService _redisCache;
 
-    public GetMatchesByTeamIdQueryHandler(IMatchesDbContext context, IDistributedCache distributedCache, IMapper mapper)
+    public GetMatchesByTeamIdQueryHandler(IMatchesRepository matchesRepository, IRedisService redisCache, IMapper mapper)
     {
-        _context = context;
-        _distributedCache = distributedCache;
+        _matchesRepository = matchesRepository;
+        _redisCache = redisCache;
         _mapper = mapper;
     }
 
-    public async Task<Result<IEnumerable<MatchResponse>>> Handle(GetMatchesByTeamIdQuery request, CancellationToken cancellationToken)
+    public async Task<Result<List<MatchResponse>>> Handle(GetMatchesByTeamIdQuery request, CancellationToken cancellationToken)
     {
         string key = $"matchesByTeamId-{request.TeamId}";
 
-        var cachedMatches = await _distributedCache.GetStringAsync(key, cancellationToken);
+        var cachedMatches = await _redisCache.GetStringAsync(key, cancellationToken);
 
-        IEnumerable<MatchResponse> responseMatches;
+        List<MatchResponse> responseMatches;
 
         if (string.IsNullOrEmpty(cachedMatches))
         {
-            var matches = await _context.Matches
-               .Include(x => x.HomeTeam)
-               .Include(x => x.AwayTeam)
-               .AsNoTracking()
-               .Where(x => x.HomeTeamId == request.TeamId || x.AwayTeamId == request.TeamId)
-               .ToListAsync(cancellationToken);
+            var matches = await _matchesRepository.GetMatchesByTeamId(request.TeamId, cancellationToken);
 
-            responseMatches = _mapper.Map<IEnumerable<MatchResponse>>(matches);
+            responseMatches = _mapper.Map<List<MatchResponse>>(matches);
 
-            await _distributedCache.SetStringAsync(
+            await _redisCache.SetStringAsync(
                 key, JsonSerializer.Serialize(responseMatches),
                 new DistributedCacheEntryOptions() { AbsoluteExpiration = DateTimeOffset.UtcNow.AddDays(1) },
                 cancellationToken);
 
-            return Result<IEnumerable<MatchResponse>>.Success(responseMatches);
+            return Result<List<MatchResponse>>.Success(responseMatches);
         }
 
-        responseMatches = JsonSerializer.Deserialize<IEnumerable<MatchResponse>>(cachedMatches)!;
+        responseMatches = JsonSerializer.Deserialize<List<MatchResponse>>(cachedMatches)!;
 
-        return Result<IEnumerable<MatchResponse>>.Success(responseMatches);
+        return Result<List<MatchResponse>>.Success(responseMatches);
     }
 }

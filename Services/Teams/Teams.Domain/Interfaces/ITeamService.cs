@@ -4,7 +4,7 @@ using Teams.Domain.Results;
 namespace Teams.Domain.Interfaces;
 public interface ITeamService
 {
-    Task<Result<IEnumerable<TeamResponse>>> GetAllTeamsAsync();
+    Task<Result<List<TeamResponse>>> GetAllTeamsAsync();
     Task<Result<TeamResponse>> GetTeamByIdAsync(Guid id);
 
     Task<Result<TeamResponse>> AddTeamAsync(TeamRequest teamRequest);

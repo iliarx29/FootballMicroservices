@@ -12,9 +12,11 @@ public record ImportPlayersCommand() : IRequest<Result<int>>;
 public class ImportPlayersCommandHandler : IRequestHandler<ImportPlayersCommand, Result<int>>
 {
     private readonly IMatchesDbContext _context;
-    public ImportPlayersCommandHandler(IMatchesDbContext context)
+    private readonly IUnitOfWork _unitOfWork;
+    public ImportPlayersCommandHandler(IMatchesDbContext context, IUnitOfWork unitOfWork)
     {
         _context = context;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<Result<int>> Handle(ImportPlayersCommand request, CancellationToken cancellationToken)
@@ -69,7 +71,7 @@ public class ImportPlayersCommandHandler : IRequestHandler<ImportPlayersCommand,
 
         await _context.Players.AddRangeAsync(players, cancellationToken);
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result<int>.Success(numbOfPlayersAdded);
     }

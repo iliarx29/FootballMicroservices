@@ -3,28 +3,22 @@ using Matches.Application.Abstractions;
 using Matches.Application.Models;
 using Matches.Application.Results;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Matches.Application.Matches.Queries.GetMatchesByCompetitionId;
 public class GetMatchesByCompetitionIdQueryHandler : IRequestHandler<GetMatchesByCompetitionIdQuery, Result<IEnumerable<MatchResponse>>>
 {
-    private readonly IMatchesDbContext _context;
+    private readonly IMatchesRepository _matchesRepository;
     private readonly IMapper _mapper;
 
-    public GetMatchesByCompetitionIdQueryHandler(IMatchesDbContext context, IMapper mapper)
+    public GetMatchesByCompetitionIdQueryHandler(IMatchesRepository matchesRepository, IMapper mapper)
     {
-        _context = context;
+        _matchesRepository = matchesRepository;
         _mapper = mapper;
     }
 
     public async Task<Result<IEnumerable<MatchResponse>>> Handle(GetMatchesByCompetitionIdQuery query, CancellationToken cancellationToken)
     {
-        var matches = await _context.Matches
-            .Include(x => x.HomeTeam)
-            .Include(x => x.AwayTeam)
-            .AsNoTracking()
-            .Where(x => x.CompetitionId == query.CompetitionId)
-            .ToListAsync(cancellationToken);
+        var matches = await _matchesRepository.GetMatchesByCompetitionId(query.CompetitionId, cancellationToken);
 
         var matchesResponse = _mapper.Map<IEnumerable<MatchResponse>>(matches);
 

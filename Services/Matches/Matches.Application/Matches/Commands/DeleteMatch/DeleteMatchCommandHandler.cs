@@ -7,33 +7,35 @@ using Microsoft.Extensions.Caching.Distributed;
 namespace Matches.Application.Matches.Commands.DeleteMatch;
 public class DeleteMatchCommandHandler : IRequestHandler<DeleteMatchCommand, Result>
 {
-    private readonly IMatchesDbContext _context;
-    private readonly IDistributedCache _distributedCache;
+    private readonly IMatchesRepository _matchesRepository;
+    private readonly IRedisService _redisCache;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public DeleteMatchCommandHandler(IMatchesDbContext context, IDistributedCache distributedCache)
+    public DeleteMatchCommandHandler(IMatchesRepository matchesRepository, IRedisService redisCache, IUnitOfWork unitOfWork)
     {
-        _context = context;
-        _distributedCache = distributedCache;
+        _matchesRepository = matchesRepository;
+        _redisCache = redisCache;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<Result> Handle(DeleteMatchCommand command, CancellationToken cancellationToken)
     {
-        var match = await _context.Matches.FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
+        var match = await _matchesRepository.GetMatchByIdAsync(command.Id, cancellationToken);
 
         if (match is null)
             return Result.Error(ErrorCode.NotFound, $"Match with id: '{command.Id}' not found");
 
-        _context.Matches.Remove(match);
+        _matchesRepository.DeleteMatch(match);
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         string key1 = $"standings-{match.CompetitionId}+{match.Season}";
         string key2 = $"matchesByTeamId-{match.HomeTeamId}";
         string key3 = $"matchesByTeamId-{match.AwayTeamId}";
 
-        await _distributedCache.RemoveAsync(key1, cancellationToken);
-        await _distributedCache.RemoveAsync(key2, cancellationToken);
-        await _distributedCache.RemoveAsync(key3, cancellationToken);
+        await _redisCache.RemoveAsync(key1, cancellationToken);
+        await _redisCache.RemoveAsync(key2, cancellationToken);
+        await _redisCache.RemoveAsync(key3, cancellationToken);
 
         return Result.Success();
     }

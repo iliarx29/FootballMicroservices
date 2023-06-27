@@ -8,21 +8,21 @@ public class CustomActionResult : IConvertToActionResult
 {
     private ActionResultBody _body;
 
-    internal HttpStatusCode HttpStatusCode { get; set; }
+    public HttpStatusCode StatusCode { get; set; }
     internal string? Message { get; set; }
 
     public CustomActionResult(HttpStatusCode httpStatusCode, string? message = null)
     {
-        HttpStatusCode = httpStatusCode;
+        StatusCode = httpStatusCode;
         Message = message;
-        _body = new ActionResultBody(HttpStatusCode, Message);
+        _body = new ActionResultBody(StatusCode, Message);
     }
 
     public IActionResult Convert()
     {
         ObjectResult objectResult = new ObjectResult(_body)
         {
-            StatusCode = (int)HttpStatusCode
+            StatusCode = (int)StatusCode
         };
         return objectResult;
     }
